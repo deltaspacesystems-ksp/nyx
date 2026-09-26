@@ -2,12 +2,15 @@ import 'dart:async';
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart' show ImagePicker;
 import 'package:flutter/services.dart';
 
 import '../core/api.dart';
 import '../core/files.dart';
 import '../core/models.dart';
+import '../core/notifier.dart';
 import 'common.dart';
 import 'dialogs.dart';
 import 'emoji_picker.dart';
@@ -281,6 +284,14 @@ class ChatHeader extends StatelessWidget {
           const Spacer(),
         Icon(Icons.lock, size: 15, color: context.cs.secondary),
         const SizedBox(width: 4),
+        ListenableBuilder(
+          listenable: Notifier.instance,
+          builder: (context, _) => IconButton(
+            icon: Icon(Notifier.instance.isMuted(ch.id) ? Icons.notifications_off_rounded : Icons.notifications_none_rounded, color: Notifier.instance.isMuted(ch.id) ? context.nyx.danger : null),
+            tooltip: Notifier.instance.isMuted(ch.id) ? 'Unmute this channel' : 'Mute this channel',
+            onPressed: () => Notifier.instance.toggleMute(ch.id),
+          ),
+        ),
         if (ch.isDm) IconButton(icon: const Icon(Icons.call_rounded), tooltip: 'Start a call', onPressed: () => app.voice.join(ch.id)),
         if (!compact) ...[
           IconButton(icon: const Icon(Icons.push_pin_outlined), tooltip: 'Pinned messages', onPressed: () => showPins(context, ch)),
@@ -390,6 +401,19 @@ class ComposerState extends State<Composer> {
   Future<void> pick() async {
     final files = await FilePicker.pickFiles();
     addFiles([for (final f in files) PickedFile(f.name, await f.length() ?? 0, f.readAsByteStream, mime: guessMime(f.name))]);
+  }
+
+  bool get _mobile => !kIsWeb && (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android);
+
+  /// Photos and videos from the gallery. On iOS this is the system photo picker, so Nyx only ever gets the
+  /// items that were chosen (no access to the whole library).
+  Future<void> pickGallery() async {
+    try {
+      final items = await ImagePicker().pickMultipleMedia();
+      addFiles([for (final f in items) PickedFile(f.name, await f.length(), f.openRead, mime: f.mimeType ?? guessMime(f.name))]);
+    } catch (e) {
+      setState(() => error = 'Could not open the gallery.');
+    }
   }
 
   Future<void> send() async {
@@ -528,6 +552,7 @@ class ComposerState extends State<Composer> {
             decoration: BoxDecoration(color: context.cs.onSurface.withValues(alpha: .07), borderRadius: BorderRadius.circular(context.nyx.radius)),
             child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               IconButton(icon: const Icon(Icons.add_circle_rounded), tooltip: canAttach ? 'Attach files (encrypted)' : 'You cannot attach files here', onPressed: canAttach && widget.editing == null ? pick : null),
+              if (_mobile) IconButton(icon: const Icon(Icons.photo_library_rounded), tooltip: canAttach ? 'Photos and videos' : 'You cannot attach files here', onPressed: canAttach && widget.editing == null ? pickGallery : null),
               Expanded(
                 child: Focus(
                   onKeyEvent: (_, e) {

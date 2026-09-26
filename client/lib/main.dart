@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:media_kit/media_kit.dart';
 
 import 'state/app_state.dart';
 import 'theme/nyx_theme.dart';
@@ -8,6 +9,7 @@ import 'ui/shell.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
   final theme = ThemeController();
   final app = AppState();
   await theme.load();

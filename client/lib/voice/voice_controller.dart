@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/crypto.dart';
+import '../core/notifier.dart';
 import '../state/app_state.dart';
 
 /// One WebRTC connection to another participant.
@@ -330,11 +331,13 @@ class VoiceController extends ChangeNotifier {
 
   Future<void> onJoined(String channel, String user) => _guard('join', () async {
         if (channel != channelId || user == _me) return;
+        Notifier.instance.playSound('join');
         await _connectTo(user);
       });
 
   Future<void> onLeft(String channel, String user) async {
     if (channel != channelId) return;
+    Notifier.instance.playSound('leave');
     _creating.remove(user);
     final p = peers.remove(user);
     await p?.dispose();

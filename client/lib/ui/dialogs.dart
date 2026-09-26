@@ -330,9 +330,37 @@ Future<void> showPresenceMenu(BuildContext context, Offset pos) async {
       item('idle', 'Idle', const Color(0xFFF5A623)),
       item('dnd', 'Do not disturb', context.nyx.danger),
       item('invisible', 'Invisible', const Color(0xFF80848E)),
+      const PopupMenuDivider(),
+      PopupMenuItem<String>(value: '_activity', child: Row(children: [Icon(Icons.sports_esports_rounded, size: 16, color: context.muted), const SizedBox(width: 12), Text(app.manualActivity == null ? 'Set activity…' : 'Activity: ${app.manualActivity!['name']}')])),
     ],
   );
-  if (v != null) await app.setPresence(v);
+  if (v == '_activity') {
+    if (context.mounted) await showActivityDialog(context);
+  } else if (v != null) {
+    await app.setPresence(v);
+  }
+}
+
+Future<void> showActivityDialog(BuildContext context) async {
+  final app = context.appRead;
+  final name = TextEditingController(text: (app.manualActivity?['name'] as String?) ?? '');
+  final details = TextEditingController(text: (app.manualActivity?['details'] as String?) ?? '');
+  await showDialog(
+    context: context,
+    builder: (c) => NyxDialog(
+      title: 'Activity',
+      subtitle: 'Shown next to your name for everyone in your servers. Games that support Discord Rich Presence fill this in by themselves.',
+      actions: [
+        if (app.manualActivity != null) TextButton(onPressed: () { app.setManualActivity(null); Navigator.pop(c); }, child: const Text('Clear')),
+        TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancel')),
+        FilledButton(onPressed: () { app.setManualActivity(name.text, details: details.text); Navigator.pop(c); }, child: const Text('Save')),
+      ],
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        TextField(controller: name, autofocus: true, maxLength: 64, decoration: const InputDecoration(labelText: 'Playing / doing')),
+        TextField(controller: details, maxLength: 128, decoration: const InputDecoration(labelText: 'Details (optional)')),
+      ]),
+    ),
+  );
 }
 
 // ============================================================================ conversations

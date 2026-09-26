@@ -83,6 +83,7 @@ class UserModel {
   final String id, username, edPublic, xPublic;
   String displayName;
   String presence; // online | idle | dnd | offline
+  Map<String, dynamic>? activity; // {name, details?, state?, since} - what they are playing right now
   String? profileCipher;
   int profileVersion;
   Profile profile = Profile();
@@ -99,6 +100,12 @@ class UserModel {
         profileVersion = (j['profileVersion'] as num?)?.toInt() ?? 0;
 
   bool get online => presence != 'offline';
+  String? get activityText {
+    final a = activity;
+    if (a == null) return null;
+    final extra = (a['details'] as String?)?.isNotEmpty == true ? ' · ${a['details']}' : '';
+    return 'Playing ${a['name']}$extra';
+  }
   String get name => displayName.isEmpty ? username : displayName;
 }
 

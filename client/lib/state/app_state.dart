@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/api.dart';
 import '../core/crypto.dart';
@@ -11,7 +12,9 @@ import '../core/files.dart';
 import '../core/gifs.dart';
 import '../core/hub.dart';
 import '../core/media.dart';
+import '../core/discord_rpc_stub.dart' if (dart.library.io) '../core/discord_rpc_io.dart';
 import '../core/models.dart';
+import '../core/notifier.dart';
 import '../voice/voice_controller.dart';
 
 const defaultServer = 'https://nyx.deltatechksp.eu';
@@ -71,6 +74,53 @@ class AppState extends ChangeNotifier {
   String? channelId;
   String myPresence = 'online';
 
+  // ---- activity ("Playing ...")
+  Map<String, dynamic>? manualActivity, _rpcActivity;
+  bool rpcEnabled = true;
+  final _rpc = DiscordRpcBridge();
+  bool get rpcSupported => _rpc.supported;
+  String? get rpcPipe => _rpc.pipeName;
+
+  /// Manual wins over whatever a game reports through the Discord-compatible pipe.
+  Map<String, dynamic>? get myActivity => manualActivity ?? _rpcActivity;
+
+  Future<void> _pushActivity() async {
+    final a = myActivity;
+    users[myId]?.activity = a;
+    notifyListeners();
+    try {
+      await hub.invoke('SetActivity', [a?['name'], a?['details'], a?['state']]);
+    } catch (_) {}
+  }
+
+  Future<void> setManualActivity(String? name, {String? details}) async {
+    manualActivity = (name == null || name.trim().isEmpty) ? null : {'name': name.trim(), if (details != null && details.trim().isNotEmpty) 'details': details.trim()};
+    await _pushActivity();
+  }
+
+  Future<void> setRpcEnabled(bool v) async {
+    rpcEnabled = v;
+    try {
+      (await SharedPreferences.getInstance()).setBool('nyx.rpc', v);
+    } catch (_) {}
+    if (v) {
+      await _startRpc();
+    } else {
+      _rpc.stop();
+      _rpcActivity = null;
+      await _pushActivity();
+    }
+    notifyListeners();
+  }
+
+  Future<void> _startRpc() async {
+    if (!_rpc.supported || _rpc.running) return;
+    await _rpc.start((a) {
+      _rpcActivity = a;
+      _pushActivity();
+    });
+  }
+
   bool get signedIn => me != null && identity != null;
   String get myId => me!.id;
   String get server => api.baseUrl;
@@ -107,6 +157,12 @@ class AppState extends ChangeNotifier {
   // ================================================================= start / auth
 
   Future<void> init() async {
+    Notifier.instance.onOpenChannel = openChannel;
+    Notifier.instance.init();
+    try {
+      rpcEnabled = (await SharedPreferences.getInstance()).getBool('nyx.rpc') ?? true;
+    } catch (_) {}
+    if (rpcEnabled) _startRpc();
     final server = await _store.read(key: 'server') ?? (kIsWeb ? Uri.base.origin : defaultServer);
     api = NyxApi(server, accessToken: await _store.read(key: 'access'), refreshToken: await _store.read(key: 'refresh'));
     _wireApi();
@@ -477,14 +533,27 @@ class AppState extends ChangeNotifier {
       for (final u in users.values) {
         u.presence = 'offline';
       }
+      for (final u in users.values) {
+        u.activity = null;
+      }
       for (final o in (m(d)['online'] as List)) {
         users[o['userId']]?.presence = o['presence'];
       }
+      for (final o in (m(d)['activities'] as List? ?? const [])) {
+        users[o['userId']]?.activity = (o['activity'] as Map?)?.cast<String, dynamic>();
+      }
+      if (myActivity != null) _pushActivity();
+      notifyListeners();
+    });
+    hub.on('Activity', (d) {
+      final x = m(d);
+      users[x['userId']]?.activity = (x['activity'] as Map?)?.cast<String, dynamic>();
       notifyListeners();
     });
     hub.on('Presence', (d) {
       final x = m(d);
       users[x['userId']]?.presence = x['presence'];
+      if (x['presence'] == 'offline') users[x['userId']]?.activity = null;
       notifyListeners();
     });
     hub.on('MessageCreate', (d) => _onMessage(m(d)));
@@ -564,12 +633,28 @@ class AppState extends ChangeNotifier {
     } else if (msg.mentions.contains(myId) || msg.mentionsEveryone) {
       mentionCount[msg.channelId] = (mentionCount[msg.channelId] ?? 0) + 1;
     }
+    if (msg.senderId != myId && !(msg.channelId == channelId && _appFocused)) _notify(msg);
     notifyListeners();
+  }
+
+  /// Sound, taskbar flash and system notification for a message the person is not looking at.
+  void _notify(MessageModel msg) {
+    if (myPresence == 'dnd') return;
+    final ch = channelById(msg.channelId);
+    if (ch == null) return;
+    final ping = ch.isDm || msg.mentions.contains(myId) || msg.mentionsEveryone;
+    final who = displayNameIn(msg.senderId, ch.guildId);
+    final title = ch.isDm ? who : '$who  ·  #${ch.name}';
+    var body = msg.text.trim();
+    if (body.isEmpty) body = msg.files.isNotEmpty ? (msg.content?['st'] == true ? 'sent a sticker' : (msg.files.first.mime == 'image/gif' ? 'sent a GIF' : 'sent a file')) : 'sent a message';
+    if (body.length > 200) body = '${body.substring(0, 200)}…';
+    Notifier.instance.message(channelId: ch.id, title: title, body: body, ping: ping, appFocused: _appFocused);
   }
 
   bool _appFocused = true;
   void setFocused(bool v) {
     _appFocused = v;
+    if (v) Notifier.instance.focused();
     if (v && channelId != null) markRead(channelId!);
   }
 

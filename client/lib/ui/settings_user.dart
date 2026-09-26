@@ -9,6 +9,7 @@ import '../theme/nyx_theme.dart';
 import '../voice/voice_controller.dart';
 import 'device_panel.dart';
 import 'common.dart';
+import '../core/notifier.dart';
 import 'dialogs.dart';
 import 'settings_common.dart';
 import 'settings_themes.dart';
@@ -25,6 +26,7 @@ Future<void> showUserSettings(BuildContext context, {int tab = 0}) => showDialog
             SettingsTab(Icons.shield_rounded, 'Security', (_) => const _SecurityTab()),
             SettingsTab(Icons.palette_rounded, 'Appearance', (_) => const _AppearanceTab()),
             SettingsTab(Icons.extension_rounded, 'Theme packs', (_) => const ThemePacksTab()),
+            SettingsTab(Icons.notifications_rounded, 'Notifications', (_) => const _NotificationsTab()),
             SettingsTab(Icons.mic_rounded, 'Voice & video', (_) => const _VoiceTab()),
             if (app.isInstanceAdmin) SettingsTab(Icons.admin_panel_settings_rounded, 'This instance', (_) => const _InstanceTab()),
             SettingsTab(Icons.info_outline_rounded, 'About', (_) => const _AboutTab()),
@@ -422,6 +424,38 @@ class _AppearanceTab extends StatelessWidget {
 }
 
 // ==================================================================================== voice
+
+class _NotificationsTab extends StatelessWidget {
+  const _NotificationsTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final n = Notifier.instance;
+    return ListenableBuilder(
+      listenable: n,
+      builder: (context, _) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const PageTitle('Notifications'),
+        SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Desktop / phone notifications'), subtitle: const Text('Shown when Nyx is not in front. The text is decrypted on this device only.'), value: n.desktop, onChanged: (v) => n.update(desktop: v)),
+        SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Sounds'), subtitle: const Text('New messages, mentions, and people joining or leaving a call'), value: n.sounds, onChanged: (v) => n.update(sounds: v)),
+        SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Flash the taskbar button (Windows)'), value: n.flash, onChanged: (v) => n.update(flash: v)),
+        const SectionTitle('What should notify you'),
+        Wrap(spacing: 8, children: [
+          ChoiceChip(label: const Text('Direct messages & mentions'), selected: !n.allMessages, onSelected: (_) => n.update(allMessages: false)),
+          ChoiceChip(label: const Text('Every message'), selected: n.allMessages, onSelected: (_) => n.update(allMessages: true)),
+        ]),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(icon: const Icon(Icons.volume_up_rounded), label: const Text('Play test sound'), onPressed: () => n.playSound('mention')),
+        if (context.app.rpcSupported) ...[
+          const SectionTitle('Games'),
+          SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Show games I play (Discord Rich Presence)'), subtitle: Text(context.app.rpcEnabled ? 'Nyx listens like the Discord app does and shows what your games report. Nothing is sent to Discord.${context.app.rpcPipe == null ? '' : ' (using ${context.app.rpcPipe})'}' : 'Off: games are not shown.'), value: context.app.rpcEnabled, onChanged: (v) => context.app.setRpcEnabled(v)),
+          const InfoBox(Icons.info_outline_rounded, 'If the real Discord app is running, games talk to it first. Close Discord to have them talk to Nyx.'),
+        ],
+        const InfoBox(Icons.do_not_disturb_on_rounded, 'Do not disturb silences everything. Mute a single channel with the bell in its header.'),
+        if (n.muted.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 8), child: Text('${n.muted.length} muted channel(s)', style: TextStyle(color: context.muted))),
+      ]),
+    );
+  }
+}
 
 class _VoiceTab extends StatelessWidget {
   const _VoiceTab();

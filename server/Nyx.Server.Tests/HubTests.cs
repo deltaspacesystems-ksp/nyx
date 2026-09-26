@@ -31,7 +31,7 @@ public class HubTests : IClassFixture<TestApp>
                 })
                 .Build();
             foreach (var e in new[] { "MessageCreate", "MessageUpdate", "MessageDelete", "ChannelCreate", "ChannelDelete", "GuildRemoved", "MemberAdd", "MemberRemove",
-                "Presence", "Ready", "Typing", "VoiceJoined", "VoiceLeft", "VoiceParticipants", "VoiceState", "Signal", "SessionRevoked", "Resync", "KeysAvailable", "UserJoined" }.Concat(listen))
+                "Presence", "Ready", "Typing", "VoiceJoined", "VoiceLeft", "VoiceParticipants", "VoiceState", "Signal", "SessionRevoked", "Resync", "KeysAvailable", "UserJoined", "Activity" }.Concat(listen))
                 l.Conn.On<JsonElement>(e, d => l.Events.Enqueue((e, d.Clone())));
             await l.Conn.StartAsync();
             return l;
@@ -175,6 +175,27 @@ public class HubTests : IClassFixture<TestApp>
             await Assert.ThrowsAsync<HubException>(() => lb.Conn.InvokeAsync("SetPresence", "hacker"));
         }
         await la.Wait("Presence", d => d.GetProperty("userId").GetGuid() == b.Id && d.GetProperty("presence").GetString() == "offline");
+    }
+
+    [Fact]
+    public async Task Activity_is_shared_cleared_and_hidden_when_invisible()
+    {
+        var (a, b, _) = await Pair();
+        await using var la = await Live.Connect(app, a.Access);
+        await using var lb = await Live.Connect(app, b.Access);
+        await lb.Conn.InvokeAsync("SetActivity", "Some Game", "Level 3", null);
+        var got = await la.Wait("Activity", d => d.GetProperty("userId").GetGuid() == b.Id && d.GetProperty("activity").ValueKind == JsonValueKind.Object);
+        Assert.Equal("Some Game", got.GetProperty("activity").GetProperty("name").GetString());
+        // a person who connects later sees it in Ready
+        await using var lc = await Live.Connect(app, a.Access);
+        var ready = await lc.Wait("Ready");
+        Assert.Contains(ready.GetProperty("activities").EnumerateArray(), o => o.GetProperty("userId").GetGuid() == b.Id);
+        await lb.Conn.InvokeAsync("SetActivity", "", null, null);
+        await la.Wait("Activity", d => d.GetProperty("userId").GetGuid() == b.Id && d.GetProperty("activity").ValueKind == JsonValueKind.Null);
+        // invisible: nothing is announced
+        await lb.Conn.InvokeAsync("SetPresence", "invisible");
+        await lb.Conn.InvokeAsync("SetActivity", "Secret Game", null, null);
+        Assert.True(await la.Never("Activity", d => d.GetProperty("userId").GetGuid() == b.Id && d.GetProperty("activity").ValueKind == JsonValueKind.Object && d.GetProperty("activity").GetProperty("name").GetString() == "Secret Game", 400));
     }
 
     [Fact]

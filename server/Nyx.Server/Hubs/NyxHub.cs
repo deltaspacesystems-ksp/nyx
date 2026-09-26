@@ -8,6 +8,7 @@ using Nyx.Server.Services;
 
 namespace Nyx.Server.Hubs;
 
+public record ActivityInfo(string Name, string? Details, string? State, long Since);
 public record VoiceUser(bool Muted, bool Deafened, bool Streaming, bool Camera = false);
 
 /// <summary>Who is in which call. Media itself is peer-to-peer; the server only tracks membership/state.</summary>
@@ -64,6 +65,9 @@ public sealed class VoiceRooms
 public class NyxHub(NyxDb db, Access access, Realtime rt, Connections conns, SessionService sessions,
     MessageService messages, Limiters limits, VoiceRooms voice) : Hub
 {
+    /// What people are playing / doing right now (memory only, gone when they disconnect).
+    static readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, ActivityInfo> Activities = new();
+
     static readonly HashSet<string> Presences = ["online", "idle", "dnd", "invisible"];
 
     Guid Me => Context.User!.UserId();
@@ -88,6 +92,7 @@ public class NyxHub(NyxDb db, Access access, Realtime rt, Connections conns, Ses
         await Clients.Caller.SendAsync("Ready", new
         {
             online = presences.Select(p => new { userId = p.Id, presence = p.Presence == "invisible" ? "offline" : p.Presence }),
+            activities = presences.Where(p => p.Presence != "invisible" && Activities.ContainsKey(p.Id)).Select(p => new { userId = p.Id, activity = Activities[p.Id] }),
         });
 
         if (first)
@@ -104,6 +109,7 @@ public class NyxHub(NyxDb db, Access access, Realtime rt, Connections conns, Ses
         if (last)
         {
             await LeaveVoiceInternal(user);
+            Activities.TryRemove(user, out _);
             await Clients.Others.SendAsync("Presence", new { userId = user, presence = "offline" });
         }
         await base.OnDisconnectedAsync(ex);
@@ -130,7 +136,25 @@ public class NyxHub(NyxDb db, Access access, Realtime rt, Connections conns, Ses
         var u = await db.Users.FirstAsync(x => x.Id == Me);
         u.Presence = presence;
         await db.SaveChangesAsync();
+        if (presence == "invisible" && Activities.TryRemove(Me, out _)) await rt.ToAll("Activity", new { userId = Me, activity = (ActivityInfo?)null });
         await rt.ToAll("Presence", new { userId = Me, presence = presence == "invisible" ? "offline" : presence });
+    }
+
+    /// Sets (or clears, with an empty name) what I am doing. Invisible people are never announced.
+    public async Task SetActivity(string? name, string? details, string? state)
+    {
+        name = name?.Trim();
+        if (string.IsNullOrEmpty(name))
+        {
+            if (Activities.TryRemove(Me, out _)) await rt.ToAll("Activity", new { userId = Me, activity = (ActivityInfo?)null });
+            return;
+        }
+        static string? Cut(string? v, int n) { v = v?.Trim(); return string.IsNullOrEmpty(v) ? null : (v.Length > n ? v[..n] : v); }
+        var mine = await db.Users.Where(u => u.Id == Me).Select(u => u.Presence).FirstAsync();
+        if (mine == "invisible") return;
+        var info = new ActivityInfo(Cut(name, 64)!, Cut(details, 128), Cut(state, 128), Activities.TryGetValue(Me, out var old) && old.Name == name ? old.Since : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        Activities[Me] = info;
+        await rt.ToAll("Activity", new { userId = Me, activity = info });
     }
 
     // ---- voice / screen share ----------------------------------------------------------------

@@ -1,3 +1,4 @@
+import 'media_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -348,6 +349,8 @@ class _AttachmentViewState extends State<AttachmentView> {
         ),
       );
     }
+    if (f.isVideo && f.size < 400 * 1024 * 1024) return VideoAttachment(file: f);
+    if (f.isAudio && f.size < 150 * 1024 * 1024) return AudioAttachment(file: f);
     final icon = f.isVideo ? Icons.movie_rounded : (f.isAudio ? Icons.audiotrack_rounded : (f.mime.contains('pdf') ? Icons.picture_as_pdf_rounded : Icons.insert_drive_file_rounded));
     return Container(
       constraints: const BoxConstraints(maxWidth: 380),

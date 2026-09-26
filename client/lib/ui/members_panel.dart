@@ -44,7 +44,9 @@ class MembersPanel extends StatelessWidget {
                     if (g != null && g.ownerId == u.id) Padding(padding: const EdgeInsets.only(left: 4), child: Icon(Icons.workspace_premium_rounded, size: 14, color: const Color(0xFFF5A623))),
                     if (member?.timedOut == true) Padding(padding: const EdgeInsets.only(left: 4), child: Icon(Icons.timer_off_rounded, size: 13, color: context.faint)),
                   ]),
-                  if (u.profile.status.isNotEmpty) Text(u.profile.status, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11.5, color: context.muted)),
+                  if (u.online && u.activityText != null)
+                    Row(children: [Icon(Icons.sports_esports_rounded, size: 12, color: context.cs.secondary), const SizedBox(width: 4), Flexible(child: Text(u.activityText!, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11.5, color: context.cs.secondary)))])
+                  else if (u.profile.status.isNotEmpty) Text(u.profile.status, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11.5, color: context.muted)),
                 ]),
               ),
             ]),
