@@ -1,0 +1,24 @@
+{
+  "name": "Nyx",
+  "identifier": "eu.deltatechksp.nyx.source",
+  "subtitle": "Private, end-to-end encrypted chat",
+  "description": "Nyx builds for SideStore / AltStore. The IPA is unsigned and gets signed with your own Apple ID.",
+  "iconURL": "https://raw.githubusercontent.com/deltaspacesystems-ksp/nyx/main/client/assets/logo.png",
+  "website": "https://github.com/deltaspacesystems-ksp/nyx",
+  "apps": [
+    {
+      "name": "Nyx",
+      "bundleIdentifier": "eu.deltatechksp.nyx",
+      "developerName": "deltaspacesystems-ksp",
+      "subtitle": "Private, end-to-end encrypted chat",
+      "localizedDescription": "Private, end-to-end encrypted chat with voice, video, screen sharing, GIFs and themes.",
+      "iconURL": "https://raw.githubusercontent.com/deltaspacesystems-ksp/nyx/main/client/assets/logo.png",
+      "version": "1.2.0",
+      "versionDate": "2026-09-26",
+      "downloadURL": "https://github.com/deltaspacesystems-ksp/nyx/releases/download/ios-v1.2.0/Nyx.ipa",
+      "size": 0,
+      "minOSVersion": "15.0"
+    }
+  ],
+  "news": []
+}

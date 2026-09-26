@@ -1,0 +1,2150 @@
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (27ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      PRAGMA journal_mode=WAL;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "s"."Id"
+      FROM "Sessions" AS "s"
+      WHERE "s"."Revoked" OR "s"."ExpiresAt" < rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.')
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Users" AS "u")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Invites" AS "i"
+          WHERE "i"."GuildId" IS NULL AND "i"."ExpiresAt" > rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.'))
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@AddDays='?' (DbType = DateTime), @AddDays1='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT "s"."Id", "s"."CreatedAt", "s"."Device", "s"."ExpiresAt", "s"."Ip", "s"."LastSeen", "s"."PrevRefreshHash", "s"."RefreshHash", "s"."Revoked", "s"."UserId"
+      FROM "Sessions" AS "s"
+      WHERE "s"."ExpiresAt" < @AddDays OR ("s"."Revoked" AND "s"."LastSeen" < @AddDays1)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@AddDays='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT "i"."Code", "i"."CreatedBy", "i"."ExpiresAt", "i"."GuildId", "i"."MaxUses", "i"."Uses"
+      FROM "Invites" AS "i"
+      WHERE "i"."ExpiresAt" < @AddDays
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@AddDays='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT "a"."Id", "a"."Action", "a"."At", "a"."Detail", "a"."GuildId", "a"."Ip", "a"."UserId"
+      FROM "Audit" AS "a"
+      WHERE "a"."At" < @AddDays
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:5199
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Projects\nyx\server\Nyx.Server
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@code='?' (Size = 12)], CommandType='Text', CommandTimeout='30']
+      SELECT "i"."Code", "i"."CreatedBy", "i"."ExpiresAt", "i"."GuildId", "i"."MaxUses", "i"."Uses"
+      FROM "Invites" AS "i"
+      WHERE "i"."Code" = @code
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@name='?' (Size = 5)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Users" AS "u"
+          WHERE "u"."Username" = @name)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Users" AS "u")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 15), @p1='?' (DbType = DateTime), @p2='?' (Size = 19), @p3='?' (DbType = Guid), @p4='?' (Size = 9), @p5='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Audit" ("Action", "At", "Detail", "GuildId", "Ip", "UserId")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p1='?' (Size = 12), @p0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Invites" SET "Uses" = @p0
+      WHERE "Code" = @p1
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 44), @p2='?' (Size = 84), @p3='?' (DbType = DateTime), @p4='?' (Size = 5), @p5='?' (Size = 244), @p6='?' (DbType = Int32), @p7='?' (Size = 44), @p8='?' (DbType = Boolean), @p9='?' (Size = 24), @p10='?' (DbType = DateTime), @p11='?' (Size = 6), @p12='?', @p13='?' (DbType = Int32), @p14='?', @p15='?' (DbType = Boolean), @p16='?' (DbType = Int64), @p17='?', @p18='?' (Size = 5)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Users" ("Id", "AgreementPublicKey", "AuthHash", "CreatedAt", "DisplayName", "EncryptedKeyBackup", "FailedLogins", "IdentityPublicKey", "IsInstanceAdmin", "KdfSalt", "LockedUntil", "Presence", "ProfileCipher", "ProfileVersion", "RecoveryCodesJson", "TotpEnabled", "TotpLastStep", "TotpSecretEnc", "Username")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (Size = 120), @p3='?' (DbType = DateTime), @p4='?' (Size = 9), @p5='?' (DbType = DateTime), @p6='?', @p7='?' (Size = 64), @p8='?' (DbType = Boolean), @p9='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Sessions" ("Id", "CreatedAt", "Device", "ExpiresAt", "Ip", "LastSeen", "PrevRefreshHash", "RefreshHash", "Revoked", "UserId")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."AgreementPublicKey", "u"."AuthHash", "u"."CreatedAt", "u"."DisplayName", "u"."EncryptedKeyBackup", "u"."FailedLogins", "u"."IdentityPublicKey", "u"."IsInstanceAdmin", "u"."KdfSalt", "u"."LockedUntil", "u"."Presence", "u"."ProfileCipher", "u"."ProfileVersion", "u"."RecoveryCodesJson", "u"."TotpEnabled", "u"."TotpLastStep", "u"."TotpSecretEnc", "u"."Username"
+      FROM "Users" AS "u"
+      ORDER BY "u"."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "k"."ScopeId", "k"."Version", "k"."Sealed"
+      FROM "Keys" AS "k"
+      WHERE "k"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."Version", "p"."Sealed"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."ViewerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."ChannelId", MAX("m"."Id") AS "LastId"
+      FROM "Messages" AS "m"
+      WHERE 0
+      GROUP BY "m"."ChannelId"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" <> @uid AND "u"."Id" NOT IN (
+          SELECT "p"."ViewerId"
+          FROM "ProfileKeys" AS "p"
+          WHERE "p"."OwnerId" = @uid
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @online1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."AgreementPublicKey", "u"."AuthHash", "u"."CreatedAt", "u"."DisplayName", "u"."EncryptedKeyBackup", "u"."FailedLogins", "u"."IdentityPublicKey", "u"."IsInstanceAdmin", "u"."KdfSalt", "u"."LockedUntil", "u"."Presence", "u"."ProfileCipher", "u"."ProfileVersion", "u"."RecoveryCodesJson", "u"."TotpEnabled", "u"."TotpLastStep", "u"."TotpSecretEnc", "u"."Username"
+      FROM "Users" AS "u"
+      ORDER BY "u"."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "k"."ScopeId", "k"."Version", "k"."Sealed"
+      FROM "Keys" AS "k"
+      WHERE "k"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."Version", "p"."Sealed"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."ViewerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."ChannelId", MAX("m"."Id") AS "LastId"
+      FROM "Messages" AS "m"
+      WHERE 0
+      GROUP BY "m"."ChannelId"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" <> @uid AND "u"."Id" NOT IN (
+          SELECT "p"."ViewerId"
+          FROM "ProfileKeys" AS "p"
+          WHERE "p"."OwnerId" = @uid
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM "Guilds" AS "g"
+      WHERE "g"."OwnerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@c_Id='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Channels" AS "c"
+          WHERE "c"."Id" = @c_Id)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@c_Id='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Channels" AS "c"
+          WHERE "c"."Id" = @c_Id)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@c_Id='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Channels" AS "c"
+          WHERE "c"."Id" = @c_Id)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 13), @p1='?' (DbType = DateTime), @p2='?', @p3='?' (DbType = Guid), @p4='?' (Size = 9), @p5='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Audit" ("Action", "At", "Detail", "GuildId", "Ip", "UserId")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "ChannelMembers" ("ChannelId", "UserId", "AddedAt")
+      VALUES (@p0, @p1, @p2);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "ChannelMembers" ("ChannelId", "UserId", "AddedAt")
+      VALUES (@p0, @p1, @p2);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?', @p3='?' (DbType = Guid), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (Size = 72), @p7='?' (DbType = Guid), @p8='?' (DbType = Guid), @p9='?' (DbType = Int32), @p10='?' (DbType = Boolean), @p11='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Channels" ("Id", "CreatedAt", "DmPairKey", "GuildId", "KeyVersion", "Kind", "MetaCipher", "OwnerId", "ParentId", "Position", "Restricted", "SlowmodeSeconds")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?', @p3='?' (DbType = Guid), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (Size = 60), @p7='?' (DbType = Guid), @p8='?' (DbType = Guid), @p9='?' (DbType = Int32), @p10='?' (DbType = Boolean), @p11='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Channels" ("Id", "CreatedAt", "DmPairKey", "GuildId", "KeyVersion", "Kind", "MetaCipher", "OwnerId", "ParentId", "Position", "Restricted", "SlowmodeSeconds")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?', @p3='?' (DbType = Guid), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (Size = 88), @p7='?' (DbType = Guid), @p8='?' (DbType = Guid), @p9='?' (DbType = Int32), @p10='?' (DbType = Boolean), @p11='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Channels" ("Id", "CreatedAt", "DmPairKey", "GuildId", "KeyVersion", "Kind", "MetaCipher", "OwnerId", "ParentId", "Position", "Restricted", "SlowmodeSeconds")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime), @p3='?', @p4='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "GuildMembers" ("GuildId", "UserId", "JoinedAt", "NickCipher", "TimeoutUntil")
+      VALUES (@p0, @p1, @p2, @p3, @p4);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (Size = 72), @p4='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Guilds" ("Id", "CreatedAt", "KeyVersion", "MetaCipher", "OwnerId")
+      VALUES (@p0, @p1, @p2, @p3, @p4);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = Int32), @p3='?' (Size = 124)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Keys" ("ScopeId", "UserId", "Version", "Sealed")
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = Int32), @p3='?' (Size = 124)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Keys" ("ScopeId", "UserId", "Version", "Sealed")
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = Int32), @p3='?' (Size = 124)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Keys" ("ScopeId", "UserId", "Version", "Sealed")
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = Boolean), @p3='?' (Size = 64), @p4='?' (DbType = Int64), @p5='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Roles" ("Id", "GuildId", "IsEveryone", "MetaCipher", "Permissions", "Position")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@guildId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @guildId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?' (Size = 72)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Guilds" SET "MetaCipher" = @p0
+      WHERE "Id" = @p1
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."AgreementPublicKey", "u"."AuthHash", "u"."CreatedAt", "u"."DisplayName", "u"."EncryptedKeyBackup", "u"."FailedLogins", "u"."IdentityPublicKey", "u"."IsInstanceAdmin", "u"."KdfSalt", "u"."LockedUntil", "u"."Presence", "u"."ProfileCipher", "u"."ProfileVersion", "u"."RecoveryCodesJson", "u"."TotpEnabled", "u"."TotpLastStep", "u"."TotpSecretEnc", "u"."Username"
+      FROM "Users" AS "u"
+      ORDER BY "u"."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."Id", "r"."GuildId", "r"."IsEveryone", "r"."MetaCipher", "r"."Permissions", "r"."Position"
+      FROM "Roles" AS "r"
+      WHERE "r"."GuildId" = @gid
+      ORDER BY "r"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId", "g"."UserId", "g"."JoinedAt", "g"."NickCipher", "g"."TimeoutUntil"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."GuildId", "m"."UserId", "m"."RoleId"
+      FROM "MemberRoles" AS "m"
+      WHERE "m"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" = @gid
+      ORDER BY "c"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "a"."Id", "a"."BlobId", "a"."CreatedBy", "a"."GuildId", "a"."Kind", "a"."MetaCipher"
+      FROM "Assets" AS "a"
+      WHERE "a"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" IS NULL AND "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "k"."ScopeId", "k"."Version", "k"."Sealed"
+      FROM "Keys" AS "k"
+      WHERE "k"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."Version", "p"."Sealed"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."ViewerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."ChannelId", MAX("m"."Id") AS "LastId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" IN (@myChannelIds1, @myChannelIds2)
+      GROUP BY "m"."ChannelId"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."KeyVersion"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @_8__locals1_gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid), @ver='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."UserId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @_8__locals1_gid AND "g"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals1_gid AND "k"."Version" = @ver
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" <> @uid AND "u"."Id" NOT IN (
+          SELECT "p"."ViewerId"
+          FROM "ProfileKeys" AS "p"
+          WHERE "p"."OwnerId" = @uid
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@guildId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @guildId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@rid='?' (DbType = Guid), @gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."Id", "r"."GuildId", "r"."IsEveryone", "r"."MetaCipher", "r"."Permissions", "r"."Position"
+      FROM "Roles" AS "r"
+      WHERE "r"."Id" = @rid AND "r"."GuildId" = @gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@guildId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @guildId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 12), @p1='?' (DbType = DateTime), @p2='?' (Size = 36), @p3='?' (DbType = Guid), @p4='?' (Size = 9), @p5='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Audit" ("Action", "At", "Detail", "GuildId", "Ip", "UserId")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Roles" SET "MetaCipher" = @p0
+      WHERE "Id" = @p1
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."AgreementPublicKey", "u"."AuthHash", "u"."CreatedAt", "u"."DisplayName", "u"."EncryptedKeyBackup", "u"."FailedLogins", "u"."IdentityPublicKey", "u"."IsInstanceAdmin", "u"."KdfSalt", "u"."LockedUntil", "u"."Presence", "u"."ProfileCipher", "u"."ProfileVersion", "u"."RecoveryCodesJson", "u"."TotpEnabled", "u"."TotpLastStep", "u"."TotpSecretEnc", "u"."Username"
+      FROM "Users" AS "u"
+      ORDER BY "u"."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."Id", "r"."GuildId", "r"."IsEveryone", "r"."MetaCipher", "r"."Permissions", "r"."Position"
+      FROM "Roles" AS "r"
+      WHERE "r"."GuildId" = @gid
+      ORDER BY "r"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId", "g"."UserId", "g"."JoinedAt", "g"."NickCipher", "g"."TimeoutUntil"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."GuildId", "m"."UserId", "m"."RoleId"
+      FROM "MemberRoles" AS "m"
+      WHERE "m"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" = @gid
+      ORDER BY "c"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "a"."Id", "a"."BlobId", "a"."CreatedBy", "a"."GuildId", "a"."Kind", "a"."MetaCipher"
+      FROM "Assets" AS "a"
+      WHERE "a"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" IS NULL AND "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "k"."ScopeId", "k"."Version", "k"."Sealed"
+      FROM "Keys" AS "k"
+      WHERE "k"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."Version", "p"."Sealed"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."ViewerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."ChannelId", MAX("m"."Id") AS "LastId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" IN (@myChannelIds1, @myChannelIds2)
+      GROUP BY "m"."ChannelId"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."KeyVersion"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @_8__locals1_gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid), @ver='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."UserId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @_8__locals1_gid AND "g"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals1_gid AND "k"."Version" = @ver
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" <> @uid AND "u"."Id" NOT IN (
+          SELECT "p"."ViewerId"
+          FROM "ProfileKeys" AS "p"
+          WHERE "p"."OwnerId" = @uid
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" = @channelId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "ChannelMembers" AS "c"
+          WHERE "c"."ChannelId" = @channelId AND "c"."UserId" = @userId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."Id", "m"."ChannelId", "m"."Ciphertext", "m"."CreatedAt", "m"."Deleted", "m"."EditedAt", "m"."KeyVersion", "m"."Pinned", "m"."ReplyTo", "m"."SenderId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" = @channelId
+      ORDER BY "m"."Id" DESC
+      LIMIT @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."MessageId", "r"."UserId", "r"."Tag", "r"."Cipher"
+      FROM "Reactions" AS "r"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."AgreementPublicKey", "u"."AuthHash", "u"."CreatedAt", "u"."DisplayName", "u"."EncryptedKeyBackup", "u"."FailedLogins", "u"."IdentityPublicKey", "u"."IsInstanceAdmin", "u"."KdfSalt", "u"."LockedUntil", "u"."Presence", "u"."ProfileCipher", "u"."ProfileVersion", "u"."RecoveryCodesJson", "u"."TotpEnabled", "u"."TotpLastStep", "u"."TotpSecretEnc", "u"."Username"
+      FROM "Users" AS "u"
+      ORDER BY "u"."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."Id", "r"."GuildId", "r"."IsEveryone", "r"."MetaCipher", "r"."Permissions", "r"."Position"
+      FROM "Roles" AS "r"
+      WHERE "r"."GuildId" = @gid
+      ORDER BY "r"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId", "g"."UserId", "g"."JoinedAt", "g"."NickCipher", "g"."TimeoutUntil"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."GuildId", "m"."UserId", "m"."RoleId"
+      FROM "MemberRoles" AS "m"
+      WHERE "m"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" = @gid
+      ORDER BY "c"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "a"."Id", "a"."BlobId", "a"."CreatedBy", "a"."GuildId", "a"."Kind", "a"."MetaCipher"
+      FROM "Assets" AS "a"
+      WHERE "a"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" IS NULL AND "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "k"."ScopeId", "k"."Version", "k"."Sealed"
+      FROM "Keys" AS "k"
+      WHERE "k"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."Version", "p"."Sealed"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."ViewerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."ChannelId", MAX("m"."Id") AS "LastId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" IN (@myChannelIds1, @myChannelIds2)
+      GROUP BY "m"."ChannelId"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."KeyVersion"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @_8__locals1_gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid), @ver='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."UserId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @_8__locals1_gid AND "g"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals1_gid AND "k"."Version" = @ver
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" <> @uid AND "u"."Id" NOT IN (
+          SELECT "p"."ViewerId"
+          FROM "ProfileKeys" AS "p"
+          WHERE "p"."OwnerId" = @uid
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" = @channelId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "ChannelMembers" AS "c"
+          WHERE "c"."ChannelId" = @channelId AND "c"."UserId" = @userId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" = @channelId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "ChannelMembers" AS "c"
+          WHERE "c"."ChannelId" = @channelId AND "c"."UserId" = @userId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@guildId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @guildId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@guildId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."TimeoutUntil"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @guildId AND "g"."UserId" = @userId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 368), @p2='?' (DbType = DateTime), @p3='?' (DbType = Boolean), @p4='?' (DbType = DateTime), @p5='?' (DbType = Int32), @p6='?' (DbType = Boolean), @p7='?' (DbType = Int64), @p8='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Messages" ("ChannelId", "Ciphertext", "CreatedAt", "Deleted", "EditedAt", "KeyVersion", "Pinned", "ReplyTo", "SenderId")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@guildId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @guildId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM "Invites" AS "i"
+      WHERE "i"."GuildId" = @gid AND "i"."ExpiresAt" > rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.')
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 14), @p1='?' (DbType = DateTime), @p2='?' (Size = 12), @p3='?' (DbType = Guid), @p4='?' (Size = 9), @p5='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Audit" ("Action", "At", "Detail", "GuildId", "Ip", "UserId")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 12), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime), @p3='?' (DbType = Guid), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Invites" ("Code", "CreatedBy", "ExpiresAt", "GuildId", "MaxUses", "Uses")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@code='?' (Size = 12)], CommandType='Text', CommandTimeout='30']
+      SELECT "i"."Code", "i"."CreatedBy", "i"."ExpiresAt", "i"."GuildId", "i"."MaxUses", "i"."Uses"
+      FROM "Invites" AS "i"
+      WHERE "i"."Code" = @code
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@name='?' (Size = 3)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Users" AS "u"
+          WHERE "u"."Username" = @name)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Users" AS "u")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 15), @p1='?' (DbType = DateTime), @p2='?' (Size = 19), @p3='?' (DbType = Guid), @p4='?' (Size = 9), @p5='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Audit" ("Action", "At", "Detail", "GuildId", "Ip", "UserId")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p1='?' (Size = 12), @p0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Invites" SET "Uses" = @p0
+      WHERE "Code" = @p1
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 44), @p2='?' (Size = 84), @p3='?' (DbType = DateTime), @p4='?' (Size = 3), @p5='?' (Size = 244), @p6='?' (DbType = Int32), @p7='?' (Size = 44), @p8='?' (DbType = Boolean), @p9='?' (Size = 24), @p10='?' (DbType = DateTime), @p11='?' (Size = 6), @p12='?', @p13='?' (DbType = Int32), @p14='?', @p15='?' (DbType = Boolean), @p16='?' (DbType = Int64), @p17='?', @p18='?' (Size = 3)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Users" ("Id", "AgreementPublicKey", "AuthHash", "CreatedAt", "DisplayName", "EncryptedKeyBackup", "FailedLogins", "IdentityPublicKey", "IsInstanceAdmin", "KdfSalt", "LockedUntil", "Presence", "ProfileCipher", "ProfileVersion", "RecoveryCodesJson", "TotpEnabled", "TotpLastStep", "TotpSecretEnc", "Username")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @p
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@guild_Id='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Bans" AS "b"
+          WHERE "b"."GuildId" = @guild_Id AND "b"."UserId" = @userId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@guild_Id='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "GuildMembers" AS "g"
+          WHERE "g"."GuildId" = @guild_Id AND "g"."UserId" = @userId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@guild_Id='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" = @guild_Id AND NOT ("c"."Restricted") AND "c"."Kind" <> 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "ChannelMembers" ("ChannelId", "UserId", "AddedAt")
+      VALUES (@p0, @p1, @p2);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "ChannelMembers" ("ChannelId", "UserId", "AddedAt")
+      VALUES (@p0, @p1, @p2);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime), @p3='?', @p4='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "GuildMembers" ("GuildId", "UserId", "JoinedAt", "NickCipher", "TimeoutUntil")
+      VALUES (@p0, @p1, @p2, @p3, @p4);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (Size = 120), @p3='?' (DbType = DateTime), @p4='?' (Size = 9), @p5='?' (DbType = DateTime), @p6='?', @p7='?' (Size = 64), @p8='?' (DbType = Boolean), @p9='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Sessions" ("Id", "CreatedAt", "Device", "ExpiresAt", "Ip", "LastSeen", "PrevRefreshHash", "RefreshHash", "Revoked", "UserId")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."AgreementPublicKey", "u"."AuthHash", "u"."CreatedAt", "u"."DisplayName", "u"."EncryptedKeyBackup", "u"."FailedLogins", "u"."IdentityPublicKey", "u"."IsInstanceAdmin", "u"."KdfSalt", "u"."LockedUntil", "u"."Presence", "u"."ProfileCipher", "u"."ProfileVersion", "u"."RecoveryCodesJson", "u"."TotpEnabled", "u"."TotpLastStep", "u"."TotpSecretEnc", "u"."Username"
+      FROM "Users" AS "u"
+      ORDER BY "u"."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."Id", "r"."GuildId", "r"."IsEveryone", "r"."MetaCipher", "r"."Permissions", "r"."Position"
+      FROM "Roles" AS "r"
+      WHERE "r"."GuildId" = @gid
+      ORDER BY "r"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId", "g"."UserId", "g"."JoinedAt", "g"."NickCipher", "g"."TimeoutUntil"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."GuildId", "m"."UserId", "m"."RoleId"
+      FROM "MemberRoles" AS "m"
+      WHERE "m"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" = @gid
+      ORDER BY "c"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "a"."Id", "a"."BlobId", "a"."CreatedBy", "a"."GuildId", "a"."Kind", "a"."MetaCipher"
+      FROM "Assets" AS "a"
+      WHERE "a"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" IS NULL AND "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "k"."ScopeId", "k"."Version", "k"."Sealed"
+      FROM "Keys" AS "k"
+      WHERE "k"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."Version", "p"."Sealed"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."ViewerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."ChannelId", MAX("m"."Id") AS "LastId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" IN (@myChannelIds1, @myChannelIds2)
+      GROUP BY "m"."ChannelId"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."KeyVersion"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @_8__locals1_gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" <> @uid AND "u"."Id" NOT IN (
+          SELECT "p"."ViewerId"
+          FROM "ProfileKeys" AS "p"
+          WHERE "p"."OwnerId" = @uid
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@viewers1='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @viewers1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals3_uid='?' (DbType = Guid), @i_ViewerId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."ViewerId", "p"."Sealed", "p"."Version"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."OwnerId" = @_8__locals3_uid AND "p"."ViewerId" = @i_ViewerId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (Size = 124), @p3='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "ProfileKeys" ("OwnerId", "ViewerId", "Sealed", "Version")
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."AgreementPublicKey", "u"."AuthHash", "u"."CreatedAt", "u"."DisplayName", "u"."EncryptedKeyBackup", "u"."FailedLogins", "u"."IdentityPublicKey", "u"."IsInstanceAdmin", "u"."KdfSalt", "u"."LockedUntil", "u"."Presence", "u"."ProfileCipher", "u"."ProfileVersion", "u"."RecoveryCodesJson", "u"."TotpEnabled", "u"."TotpLastStep", "u"."TotpSecretEnc", "u"."Username"
+      FROM "Users" AS "u"
+      ORDER BY "u"."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."Id", "r"."GuildId", "r"."IsEveryone", "r"."MetaCipher", "r"."Permissions", "r"."Position"
+      FROM "Roles" AS "r"
+      WHERE "r"."GuildId" = @gid
+      ORDER BY "r"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId", "g"."UserId", "g"."JoinedAt", "g"."NickCipher", "g"."TimeoutUntil"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."GuildId", "m"."UserId", "m"."RoleId"
+      FROM "MemberRoles" AS "m"
+      WHERE "m"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" = @gid
+      ORDER BY "c"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "a"."Id", "a"."BlobId", "a"."CreatedBy", "a"."GuildId", "a"."Kind", "a"."MetaCipher"
+      FROM "Assets" AS "a"
+      WHERE "a"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" IS NULL AND "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "k"."ScopeId", "k"."Version", "k"."Sealed"
+      FROM "Keys" AS "k"
+      WHERE "k"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."Version", "p"."Sealed"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."ViewerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."ChannelId", MAX("m"."Id") AS "LastId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" IN (@myChannelIds1, @myChannelIds2)
+      GROUP BY "m"."ChannelId"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."KeyVersion"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @_8__locals1_gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid), @ver='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."UserId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @_8__locals1_gid AND "g"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals1_gid AND "k"."Version" = @ver
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" <> @uid AND "u"."Id" NOT IN (
+          SELECT "p"."ViewerId"
+          FROM "ProfileKeys" AS "p"
+          WHERE "p"."OwnerId" = @uid
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid), @s_Version='?' (DbType = Int32), @_8__locals1_uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @s_ScopeId AND "k"."Version" = @s_Version AND "k"."UserId" = @_8__locals1_uid)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Guilds" AS "g"
+          WHERE "g"."Id" = @s_ScopeId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid), @s_UserId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "GuildMembers" AS "g"
+          WHERE "g"."GuildId" = @s_ScopeId AND "g"."UserId" = @s_UserId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."AgreementPublicKey", "u"."AuthHash", "u"."CreatedAt", "u"."DisplayName", "u"."EncryptedKeyBackup", "u"."FailedLogins", "u"."IdentityPublicKey", "u"."IsInstanceAdmin", "u"."KdfSalt", "u"."LockedUntil", "u"."Presence", "u"."ProfileCipher", "u"."ProfileVersion", "u"."RecoveryCodesJson", "u"."TotpEnabled", "u"."TotpLastStep", "u"."TotpSecretEnc", "u"."Username"
+      FROM "Users" AS "u"
+      ORDER BY "u"."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."Id", "r"."GuildId", "r"."IsEveryone", "r"."MetaCipher", "r"."Permissions", "r"."Position"
+      FROM "Roles" AS "r"
+      WHERE "r"."GuildId" = @gid
+      ORDER BY "r"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid), @s_Version='?' (DbType = Int32), @s_UserId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @s_ScopeId AND "k"."Version" = @s_Version AND "k"."UserId" = @s_UserId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid), @s_Version='?' (DbType = Int32), @_8__locals1_uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @s_ScopeId AND "k"."Version" = @s_Version AND "k"."UserId" = @_8__locals1_uid)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Guilds" AS "g"
+          WHERE "g"."Id" = @s_ScopeId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId", "g"."UserId", "g"."JoinedAt", "g"."NickCipher", "g"."TimeoutUntil"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."GuildId", "m"."UserId", "m"."RoleId"
+      FROM "MemberRoles" AS "m"
+      WHERE "m"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" = @gid
+      ORDER BY "c"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "a"."Id", "a"."BlobId", "a"."CreatedBy", "a"."GuildId", "a"."Kind", "a"."MetaCipher"
+      FROM "Assets" AS "a"
+      WHERE "a"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" IS NULL AND "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "k"."ScopeId", "k"."Version", "k"."Sealed"
+      FROM "Keys" AS "k"
+      WHERE "k"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."Version", "p"."Sealed"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."ViewerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid), @s_UserId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "ChannelMembers" AS "c"
+          WHERE "c"."ChannelId" = @s_ScopeId AND "c"."UserId" = @s_UserId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid), @s_Version='?' (DbType = Int32), @s_UserId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @s_ScopeId AND "k"."Version" = @s_Version AND "k"."UserId" = @s_UserId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."ChannelId", MAX("m"."Id") AS "LastId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" IN (@myChannelIds1, @myChannelIds2)
+      GROUP BY "m"."ChannelId"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid), @s_Version='?' (DbType = Int32), @_8__locals1_uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @s_ScopeId AND "k"."Version" = @s_Version AND "k"."UserId" = @_8__locals1_uid)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."KeyVersion"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @_8__locals1_gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Guilds" AS "g"
+          WHERE "g"."Id" = @s_ScopeId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid), @s_UserId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "ChannelMembers" AS "c"
+          WHERE "c"."ChannelId" = @s_ScopeId AND "c"."UserId" = @s_UserId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@s_ScopeId='?' (DbType = Guid), @s_Version='?' (DbType = Int32), @s_UserId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @s_ScopeId AND "k"."Version" = @s_Version AND "k"."UserId" = @s_UserId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" <> @uid AND "u"."Id" NOT IN (
+          SELECT "p"."ViewerId"
+          FROM "ProfileKeys" AS "p"
+          WHERE "p"."OwnerId" = @uid
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = Int32), @p3='?' (Size = 124)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Keys" ("ScopeId", "UserId", "Version", "Sealed")
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = Int32), @p3='?' (Size = 124)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Keys" ("ScopeId", "UserId", "Version", "Sealed")
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = Int32), @p3='?' (Size = 124)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Keys" ("ScopeId", "UserId", "Version", "Sealed")
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@viewers1='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @viewers1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals3_uid='?' (DbType = Guid), @i_ViewerId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."ViewerId", "p"."Sealed", "p"."Version"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."OwnerId" = @_8__locals3_uid AND "p"."ViewerId" = @i_ViewerId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (Size = 124), @p3='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "ProfileKeys" ("OwnerId", "ViewerId", "Sealed", "Version")
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."AgreementPublicKey", "u"."AuthHash", "u"."CreatedAt", "u"."DisplayName", "u"."EncryptedKeyBackup", "u"."FailedLogins", "u"."IdentityPublicKey", "u"."IsInstanceAdmin", "u"."KdfSalt", "u"."LockedUntil", "u"."Presence", "u"."ProfileCipher", "u"."ProfileVersion", "u"."RecoveryCodesJson", "u"."TotpEnabled", "u"."TotpLastStep", "u"."TotpSecretEnc", "u"."Username"
+      FROM "Users" AS "u"
+      ORDER BY "u"."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."Id", "g"."CreatedAt", "g"."KeyVersion", "g"."MetaCipher", "g"."OwnerId"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."Id", "r"."GuildId", "r"."IsEveryone", "r"."MetaCipher", "r"."Permissions", "r"."Position"
+      FROM "Roles" AS "r"
+      WHERE "r"."GuildId" = @gid
+      ORDER BY "r"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId", "g"."UserId", "g"."JoinedAt", "g"."NickCipher", "g"."TimeoutUntil"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."GuildId", "m"."UserId", "m"."RoleId"
+      FROM "MemberRoles" AS "m"
+      WHERE "m"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" = @gid
+      ORDER BY "c"."Position"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "a"."Id", "a"."BlobId", "a"."CreatedBy", "a"."GuildId", "a"."Kind", "a"."MetaCipher"
+      FROM "Assets" AS "a"
+      WHERE "a"."GuildId" = @gid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."GuildId" IS NULL AND "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId", "c"."UserId", "c"."AddedAt"
+      FROM "ChannelMembers" AS "c"
+      WHERE 0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "k"."ScopeId", "k"."Version", "k"."Sealed"
+      FROM "Keys" AS "k"
+      WHERE "k"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "p"."OwnerId", "p"."Version", "p"."Sealed"
+      FROM "ProfileKeys" AS "p"
+      WHERE "p"."ViewerId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @uid
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."ChannelId", MAX("m"."Id") AS "LastId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" IN (@myChannelIds1, @myChannelIds2)
+      GROUP BY "m"."ChannelId"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."KeyVersion"
+      FROM "Guilds" AS "g"
+      WHERE "g"."Id" = @_8__locals1_gid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals1_gid='?' (DbType = Guid), @ver='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."UserId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."GuildId" = @_8__locals1_gid AND "g"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals1_gid AND "k"."Version" = @ver
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@myChannelIds1='?' (DbType = Guid), @myChannelIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" IN (@myChannelIds1, @myChannelIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@_8__locals2_c_Id='?' (DbType = Guid), @_8__locals2_c_KeyVersion='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."UserId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."ChannelId" = @_8__locals2_c_Id AND "c"."UserId" NOT IN (
+          SELECT "k"."UserId"
+          FROM "Keys" AS "k"
+          WHERE "k"."ScopeId" = @_8__locals2_c_Id AND "k"."Version" = @_8__locals2_c_KeyVersion
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@uid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" <> @uid AND "u"."Id" NOT IN (
+          SELECT "p"."ViewerId"
+          FROM "ProfileKeys" AS "p"
+          WHERE "p"."OwnerId" = @uid
+      )
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" = @channelId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "ChannelMembers" AS "c"
+          WHERE "c"."ChannelId" = @channelId AND "c"."UserId" = @userId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."Id", "m"."ChannelId", "m"."Ciphertext", "m"."CreatedAt", "m"."Deleted", "m"."EditedAt", "m"."KeyVersion", "m"."Pinned", "m"."ReplyTo", "m"."SenderId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" = @channelId
+      ORDER BY "m"."Id" DESC
+      LIMIT @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@ids1='?' (DbType = Int64)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."MessageId", "r"."UserId", "r"."Tag", "r"."Cipher"
+      FROM "Reactions" AS "r"
+      WHERE "r"."MessageId" = @ids1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" = @channelId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "ChannelMembers" AS "c"
+          WHERE "c"."ChannelId" = @channelId AND "c"."UserId" = @userId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (DbType = Guid), @channelId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "r"."UserId", "r"."ChannelId", "r"."LastReadId"
+      FROM "ReadStates" AS "r"
+      WHERE "r"."UserId" = @userId AND "r"."ChannelId" = @channelId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = Int64)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "ReadStates" ("ChannelId", "UserId", "LastReadId")
+      VALUES (@p0, @p1, @p2);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."Id", "c"."CreatedAt", "c"."DmPairKey", "c"."GuildId", "c"."KeyVersion", "c"."Kind", "c"."MetaCipher", "c"."OwnerId", "c"."ParentId", "c"."Position", "c"."Restricted", "c"."SlowmodeSeconds"
+      FROM "Channels" AS "c"
+      WHERE "c"."Id" = @channelId
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@channelId='?' (DbType = Guid), @userId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "ChannelMembers" AS "c"
+          WHERE "c"."ChannelId" = @channelId AND "c"."UserId" = @userId)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@id='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "m"."Id", "m"."ChannelId", "m"."Ciphertext", "m"."CreatedAt", "m"."Deleted", "m"."EditedAt", "m"."KeyVersion", "m"."Pinned", "m"."ReplyTo", "m"."SenderId"
+      FROM "Messages" AS "m"
+      WHERE "m"."ChannelId" = @id AND "m"."Pinned" AND NOT ("m"."Deleted")
+      ORDER BY "m"."Id" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@sid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "s"."Id", "s"."CreatedAt", "s"."Device", "s"."ExpiresAt", "s"."Ip", "s"."LastSeen", "s"."PrevRefreshHash", "s"."RefreshHash", "s"."Revoked", "s"."UserId"
+      FROM "Sessions" AS "s"
+      WHERE "s"."Id" = @sid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p4='?' (DbType = Guid), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?' (Size = 64), @p3='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Sessions" SET "ExpiresAt" = @p0, "LastSeen" = @p1, "PrevRefreshHash" = @p2, "RefreshHash" = @p3
+      WHERE "Id" = @p4
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@sid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "s"."Id", "s"."CreatedAt", "s"."Device", "s"."ExpiresAt", "s"."Ip", "s"."LastSeen", "s"."PrevRefreshHash", "s"."RefreshHash", "s"."Revoked", "s"."UserId"
+      FROM "Sessions" AS "s"
+      WHERE "s"."Id" = @sid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p4='?' (DbType = Guid), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?' (Size = 64), @p3='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Sessions" SET "ExpiresAt" = @p0, "LastSeen" = @p1, "PrevRefreshHash" = @p2, "RefreshHash" = @p3
+      WHERE "Id" = @p4
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@sid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "s"."Id", "s"."CreatedAt", "s"."Device", "s"."ExpiresAt", "s"."Ip", "s"."LastSeen", "s"."PrevRefreshHash", "s"."RefreshHash", "s"."Revoked", "s"."UserId"
+      FROM "Sessions" AS "s"
+      WHERE "s"."Id" = @sid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p4='?' (DbType = Guid), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?' (Size = 64), @p3='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Sessions" SET "ExpiresAt" = @p0, "LastSeen" = @p1, "PrevRefreshHash" = @p2, "RefreshHash" = @p3
+      WHERE "Id" = @p4
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@AddDays='?' (DbType = DateTime), @AddDays1='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT "s"."Id", "s"."CreatedAt", "s"."Device", "s"."ExpiresAt", "s"."Ip", "s"."LastSeen", "s"."PrevRefreshHash", "s"."RefreshHash", "s"."Revoked", "s"."UserId"
+      FROM "Sessions" AS "s"
+      WHERE "s"."ExpiresAt" < @AddDays OR ("s"."Revoked" AND "s"."LastSeen" < @AddDays1)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@AddDays='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT "i"."Code", "i"."CreatedBy", "i"."ExpiresAt", "i"."GuildId", "i"."MaxUses", "i"."Uses"
+      FROM "Invites" AS "i"
+      WHERE "i"."ExpiresAt" < @AddDays
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@AddDays='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT "a"."Id", "a"."Action", "a"."At", "a"."Detail", "a"."GuildId", "a"."Ip", "a"."UserId"
+      FROM "Audit" AS "a"
+      WHERE "a"."At" < @AddDays
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@sid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "s"."Id", "s"."CreatedAt", "s"."Device", "s"."ExpiresAt", "s"."Ip", "s"."LastSeen", "s"."PrevRefreshHash", "s"."RefreshHash", "s"."Revoked", "s"."UserId"
+      FROM "Sessions" AS "s"
+      WHERE "s"."Id" = @sid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p4='?' (DbType = Guid), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?' (Size = 64), @p3='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Sessions" SET "ExpiresAt" = @p0, "LastSeen" = @p1, "PrevRefreshHash" = @p2, "RefreshHash" = @p3
+      WHERE "Id" = @p4
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@sid='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "s"."Id", "s"."CreatedAt", "s"."Device", "s"."ExpiresAt", "s"."Ip", "s"."LastSeen", "s"."PrevRefreshHash", "s"."RefreshHash", "s"."Revoked", "s"."UserId"
+      FROM "Sessions" AS "s"
+      WHERE "s"."Id" = @sid
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p4='?' (DbType = Guid), @p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?' (Size = 64), @p3='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Sessions" SET "ExpiresAt" = @p0, "LastSeen" = @p1, "PrevRefreshHash" = @p2, "RefreshHash" = @p3
+      WHERE "Id" = @p4
+      RETURNING 1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "c"."ChannelId"
+      FROM "ChannelMembers" AS "c"
+      WHERE "c"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "g"."GuildId"
+      FROM "GuildMembers" AS "g"
+      WHERE "g"."UserId" = @Me
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@online1='?' (DbType = Guid), @online2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Id", "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" IN (@online1, @online2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@Me='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT "u"."Presence"
+      FROM "Users" AS "u"
+      WHERE "u"."Id" = @Me
+      LIMIT 1

@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/server/">
+    <Project Path="server/Nyx.Server.Tests/Nyx.Server.Tests.csproj" />
+    <Project Path="server/Nyx.Server/Nyx.Server.csproj" />
+  </Folder>
+</Solution>

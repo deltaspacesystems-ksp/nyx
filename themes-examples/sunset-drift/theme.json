@@ -1,0 +1,37 @@
+{
+  "name": "Sunset Drift",
+  "author": "Nyx examples",
+  "version": 1,
+  "colors": {
+    "accent": "#FF7A59",
+    "secondary": "#FFC857",
+    "background": "#12060F",
+    "surface": "#22101F",
+    "danger": "#FF4D6D",
+    "online": "#7CFFB2",
+    "text": "#FBEFF3"
+  },
+  "shape": {
+    "radius": 20,
+    "blur": 26,
+    "panelOpacity": 0.5
+  },
+  "background": {
+    "type": "image",
+    "image": "background.gif",
+    "opacity": 0.9,
+    "blur": 8,
+    "fit": "cover"
+  },
+  "typography": {
+    "scale": 1.0
+  },
+  "messages": {
+    "style": "bubbles",
+    "compact": false
+  },
+  "effects": {
+    "speakingGlow": true,
+    "hoverAnimations": true
+  }
+}

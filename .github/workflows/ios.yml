@@ -1,0 +1,64 @@
+# Builds an unsigned Nyx.ipa on a GitHub macOS runner (Windows cannot build iOS), publishes it as a GitHub
+# release and updates the SideStore source (sidestore/source.json). SideStore signs the IPA with your own Apple ID.
+#
+# Run it from the Actions tab ("Run workflow") or push a tag like v1.2.0. The version comes from client/pubspec.yaml.
+name: iOS IPA
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  ipa:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+        working-directory: client
+      - run: flutter build ios --release --no-codesign
+        working-directory: client
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/Runner.app
+          zip -qry Nyx.ipa Payload
+        working-directory: client
+      - name: Read version
+        id: v
+        run: |
+          VER=$(grep '^version:' client/pubspec.yaml | sed 's/version: *//; s/+.*//')
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ios-v${{ steps.v.outputs.version }}
+          name: Nyx ${{ steps.v.outputs.version }} (iOS)
+          files: client/Nyx.ipa
+      - name: Update SideStore source
+        run: |
+          SIZE=$(stat -f%z client/Nyx.ipa)
+          python3 - <<PY
+          import json, datetime
+          p = 'sidestore/source.json'
+          d = json.load(open(p))
+          a = d['apps'][0]
+          a['version'] = '${{ steps.v.outputs.version }}'
+          a['versionDate'] = datetime.date.today().isoformat()
+          a['size'] = $SIZE
+          a['downloadURL'] = 'https://github.com/${{ github.repository }}/releases/download/ios-v${{ steps.v.outputs.version }}/Nyx.ipa'
+          json.dump(d, open(p, 'w'), indent=2)
+          PY
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add sidestore/source.json
+          git commit -m "SideStore: Nyx ${{ steps.v.outputs.version }}" || echo "nothing to commit"
+          git push origin HEAD:main
