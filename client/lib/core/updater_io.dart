@@ -73,15 +73,29 @@ Future<void> installAndRestart(String path) async {
   final script = File('${root.path}\\apply.ps1');
   // Waits for this process to exit (files are locked while it runs), copies the new files over, starts the app again.
   script.writeAsStringSync(r'''
-param([int]$ProcId, [string]$Src, [string]$Dst, [string]$Exe)
-try { Wait-Process -Id $ProcId -Timeout 60 -ErrorAction SilentlyContinue } catch {}
-Start-Sleep -Milliseconds 700
-robocopy $Src $Dst /E /R:10 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
-Start-Process -FilePath $Exe
+param([int]$ProcId, [string]$Src, [string]$Dst, [string]$Exe, [string]$Log)
+try { Start-Transcript -Path $Log -Force | Out-Null } catch {}
+try { Wait-Process -Id $ProcId -Timeout 15 -ErrorAction SilentlyContinue } catch {}
+# Whatever still runs from the install folder (a lingering Nyx, its helpers) holds files open: end it.
+Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -and $_.Path.StartsWith($Dst, [StringComparison]::OrdinalIgnoreCase) } | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Milliseconds 1000
+Get-ChildItem $Dst -Recurse -Filter *.old -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+$ok = $false
+for ($try = 1; $try -le 3 -and -not $ok; $try++) {
+    robocopy $Src $Dst /E /R:3 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -lt 8) { $ok = $true; break }
+    Write-Host "copy attempt $try failed (robocopy $LASTEXITCODE); moving locked files aside"
+    # A file that is still open can be renamed even though it cannot be overwritten.
+    Get-ChildItem $Dst -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.dll', '.exe' } | ForEach-Object { try { Rename-Item $_.FullName ($_.Name + '.old') -Force } catch {} }
+    Start-Sleep -Seconds 2
+}
+Write-Host "update applied: $ok"
+Start-Process -FilePath $Exe -WorkingDirectory $Dst
+try { Stop-Transcript | Out-Null } catch {}
 ''');
   await Process.start(
     'powershell.exe',
-    ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-ExecutionPolicy', 'Bypass', '-File', script.path, '-ProcId', '$pid', '-Src', src.path, '-Dst', dst, '-Exe', exe],
+    ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-ExecutionPolicy', 'Bypass', '-File', script.path, '-ProcId', '$pid', '-Src', src.path, '-Dst', dst, '-Exe', exe, '-Log', '${root.path}\\apply.log'],
     mode: ProcessStartMode.detached,
   );
   exit(0);
