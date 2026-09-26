@@ -13,10 +13,10 @@
       "subtitle": "Private, end-to-end encrypted chat",
       "localizedDescription": "Private, end-to-end encrypted chat with voice, video, screen sharing, GIFs and themes.",
       "iconURL": "https://raw.githubusercontent.com/deltaspacesystems-ksp/nyx/main/client/assets/logo.png",
-      "version": "1.2.0",
+      "version": "1.3.4",
       "versionDate": "2026-09-26",
-      "downloadURL": "https://github.com/deltaspacesystems-ksp/nyx/releases/download/ios-v1.2.0/Nyx.ipa",
-      "size": 15016939,
+      "downloadURL": "https://github.com/deltaspacesystems-ksp/nyx/releases/download/ios-v1.3.4/Nyx.ipa",
+      "size": 22254741,
       "minOSVersion": "15.0"
     }
   ],
