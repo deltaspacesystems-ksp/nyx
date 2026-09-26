@@ -34,8 +34,9 @@
     <Property Id="LAUNCHAPP" Value="1" />
     <SetProperty Id="CLEANDIR" Value="[LocalAppDataFolder]Programs\Nyx\" Condition="CLEANINSTALL = 1 AND NOT CLEANDIR" Sequence="execute" Before="CostInitialize" />
 
+    <!-- nyx.exe creates the shortcut itself (see windows/runner/main.cpp) and exits before any window: no console, no script. -->
     <CustomAction Id="MakeShortcut" Directory="INSTALLFOLDER" Return="ignore" Execute="immediate"
-      ExeCommand="powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command &quot;$s=(New-Object -ComObject WScript.Shell).CreateShortcut('[ProgramMenuFolder]Nyx.lnk'); $s.TargetPath='[INSTALLFOLDER]nyx.exe'; $s.WorkingDirectory='[INSTALLFOLDER]'; $s.Save()&quot;" />
+      ExeCommand="&quot;[INSTALLFOLDER]nyx.exe&quot; --make-shortcut &quot;[ProgramMenuFolder]Nyx.lnk&quot;" />
     <CustomAction Id="LaunchNyx" Directory="INSTALLFOLDER" Return="asyncNoWait" ExeCommand="&quot;[INSTALLFOLDER]nyx.exe&quot;" />
     <!-- Silent installs (no wizard) still get the shortcut. -->
     <InstallExecuteSequence>
