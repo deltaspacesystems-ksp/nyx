@@ -30,6 +30,9 @@
       </Component>
     </Feature>
 
+    <!-- A running Nyx is asked to close (window close message) before its files are replaced. -->
+    <util:CloseApplication Id="CloseNyx" Target="nyx.exe" CloseMessage="yes" RebootPrompt="no" />
+
     <Property Id="ADDSHORTCUT" Value="1" />
     <Property Id="LAUNCHAPP" Value="1" />
     <SetProperty Id="CLEANDIR" Value="[LocalAppDataFolder]Programs\Nyx\" Condition="CLEANINSTALL = 1 AND NOT CLEANDIR" Sequence="execute" Before="CostInitialize" />
@@ -53,6 +56,15 @@
       <TextStyle Id="NyxTitle" FaceName="Segoe UI" Size="14" Bold="yes" />
       <TextStyle Id="NyxBold" FaceName="Segoe UI" Size="9" Bold="yes" />
       <Property Id="DefaultUIFont" Value="NyxText" />
+      <!-- Standard dialogs (errors, "Nyx is running", cancel) come from the WiX UI library; they need these font names. -->
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Segoe UI" Size="9" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Segoe UI" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Segoe UI" Size="9" Bold="yes" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="UserExit" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
 
       <!-- What the details area says while each step runs. -->
       <ProgressText Action="InstallFiles" Message="Copying files" Template="File: [1]    Folder: [9]    Size: [6] bytes" />
@@ -69,7 +81,7 @@
       <ProgressText Action="UnpublishFeatures" Message="Removing feature information" Template="[1]" />
 
       <!-- 1. Welcome -->
-      <Dialog Id="WelcomeDlg" Width="370" Height="270" Title="Nyx Setup">
+      <Dialog Id="NyxWelcomeDlg" Width="370" Height="270" Title="Nyx Setup">
         <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="NyxDialogBmp" />
         <Control Id="Line" Type="Line" X="0" Y="234" Width="370" Height="0" />
         <Control Id="Title" Type="Text" X="135" Y="20" Width="225" Height="60" Transparent="yes" NoPrefix="yes" Text="{\NyxTitle}Welcome to the Nyx installation wizard" />
@@ -94,7 +106,7 @@
         <Control Id="CleanHint" Type="Text" X="43" Y="146" Width="307" Height="30" NoPrefix="yes" Text="Leave this off for a normal install or update. Turn it on if Nyx misbehaves after an update." />
         <Control Id="Line" Type="Line" X="0" Y="234" Width="370" Height="0" />
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="Back">
-          <Publish Event="NewDialog" Value="WelcomeDlg" />
+          <Publish Event="NewDialog" Value="NyxWelcomeDlg" />
         </Control>
         <Control Id="Install" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="Install">
           <Publish Event="EndDialog" Value="Return" />
@@ -129,7 +141,7 @@
       </Dialog>
 
       <!-- 4. Finish -->
-      <Dialog Id="ExitDialog" Width="370" Height="270" Title="Nyx Setup">
+      <Dialog Id="NyxExitDlg" Width="370" Height="270" Title="Nyx Setup">
         <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="NyxDialogBmp" />
         <Control Id="Line" Type="Line" X="0" Y="234" Width="370" Height="0" />
         <Control Id="Title" Type="Text" X="135" Y="20" Width="225" Height="50" Transparent="yes" NoPrefix="yes" Text="{\NyxTitle}Nyx is installed" />
@@ -145,19 +157,10 @@
         </Control>
       </Dialog>
 
-      <Dialog Id="CancelDlg" Width="260" Height="85" Title="Nyx Setup">
-        <Control Id="Text" Type="Text" X="48" Y="15" Width="194" Height="30" NoPrefix="yes" Text="Are you sure you want to cancel the Nyx installation?" />
-        <Control Id="Yes" Type="PushButton" X="72" Y="57" Width="56" Height="17" Default="yes" Text="Yes">
-          <Publish Event="EndDialog" Value="Exit" />
-        </Control>
-        <Control Id="No" Type="PushButton" X="132" Y="57" Width="56" Height="17" Cancel="yes" Text="No">
-          <Publish Event="EndDialog" Value="Return" />
-        </Control>
-      </Dialog>
 
       <InstallUISequence>
-        <Show Dialog="WelcomeDlg" After="CostFinalize" Condition="NOT Installed" />
-        <Show Dialog="ExitDialog" OnExit="success" Condition="NOT (REMOVE = &quot;ALL&quot;)" />
+        <Show Dialog="NyxWelcomeDlg" After="CostFinalize" Condition="NOT Installed" />
+        <Show Dialog="NyxExitDlg" OnExit="success" Condition="NOT (REMOVE = &quot;ALL&quot;)" />
       </InstallUISequence>
     </UI>
   </Package>

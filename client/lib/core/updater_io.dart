@@ -1,14 +1,16 @@
 import 'dart:io';
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:archive/archive_io.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:http/http.dart' as http;
+import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'api.dart';
 import 'updater.dart';
 
-bool get canSelfInstall => Platform.isWindows;
+bool get canSelfInstall => Platform.isWindows || Platform.isAndroid;
 
 String? platformName() {
   if (Platform.isWindows) return 'windows';
@@ -53,8 +55,20 @@ Future<String> download(NyxApi api, UpdateInfo i, void Function(double) progress
   return out.path;
 }
 
+/// Android: hands the downloaded APK to the system installer (it replaces the app and the person taps Install once).
+/// The first time, Android asks to allow Nyx to install apps.
+Future<void> _installApk(String path) async {
+  final r = await OpenFilex.open(path, type: 'application/vnd.android.package-archive');
+  if (r.type == ResultType.permissionDenied) {
+    await const AndroidIntent(action: 'android.settings.MANAGE_UNKNOWN_APP_SOURCES', data: 'package:eu.deltatechksp.nyx').launch();
+    throw Exception('Allow Nyx to install apps in the settings screen that just opened, then press Update now again.');
+  }
+  if (r.type != ResultType.done) throw Exception('Could not start the installer: ${r.message}');
+}
+
 Future<void> installAndRestart(String path) async {
-  if (!Platform.isWindows) throw UnsupportedError('Self-install is only available on Windows.');
+  if (Platform.isAndroid) return _installApk(path);
+  if (!Platform.isWindows) throw UnsupportedError('Self-install is not available on this platform.');
   final root = File(path).parent;
   final stage = Directory('${root.path}\\stage');
   if (stage.existsSync()) stage.deleteSync(recursive: true);

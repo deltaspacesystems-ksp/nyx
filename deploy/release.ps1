@@ -11,7 +11,8 @@ param(
     [Parameter(Mandatory)] [string] $Version,
     [Parameter(Mandatory)] [string[]] $Notes,
     [string] $Downloads = 'E:\Users\brzoz\Documents\nyx\downloads',
-    [string] $Build = 'C:\Projects\nyx\client\build\windows\x64\runner\Release'
+    [string] $Build = 'C:\Projects\nyx\client\build\windows\x64\runner\Release',
+    [string] $Apk = 'C:\Projects\nyx\client\build\app\outputs\flutter-apk\app-release.apk' # optional: published for Android when it exists
 )
 $ErrorActionPreference = 'Stop'
 if (-not (Test-Path (Join-Path $Build 'nyx.exe'))) { throw "nyx.exe not found in $Build. Run flutter build windows --release first." }
@@ -30,7 +31,7 @@ $wix = Get-Command wix -ErrorAction SilentlyContinue
 if ($wix) {
     $icon = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../client/windows/runner/resources/app_icon.ico'))
     $art = Join-Path $PSScriptRoot 'installer'
-    & wix build -pdbtype none -arch x64 -ext WixToolset.Util.wixext -d "Version=$Version" -d "Src=$Build" -d "Icon=$icon" -d "Art=$art" (Join-Path $PSScriptRoot "nyx.wxs") -o $msi
+    & wix build -pdbtype none -arch x64 -ext WixToolset.UI.wixext -ext WixToolset.Util.wixext -d "Version=$Version" -d "Src=$Build" -d "Icon=$icon" -d "Art=$art" (Join-Path $PSScriptRoot "nyx.wxs") -o $msi
     if ($LASTEXITCODE) { throw 'msi build failed' }
 } else { Write-Warning 'wix not found: skipping the .msi installer' }
 
@@ -45,6 +46,12 @@ $entry = [ordered]@{
     released = (Get-Date).ToString('yyyy-MM-dd')
     notes    = @($Notes)
     files    = [ordered]@{ windows = $name }
+}
+if (Test-Path $Apk) {
+    $apkName = "Nyx-android-$Version.apk"
+    Copy-Item $Apk (Join-Path $Downloads $apkName) -Force
+    $entry.files['android'] = $apkName
+    Write-Host "Published $apkName"
 }
 $manifest = [ordered]@{ releases = @($entry) + $releases }
 $manifest | ConvertTo-Json -Depth 6 | Set-Content $manifestPath -Encoding utf8

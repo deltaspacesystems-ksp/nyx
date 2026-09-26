@@ -18,3 +18,6 @@ client/android/local.properties
 client/android/.gradle/
 client/.flutter-plugins*
 .claude/
+client/android/key.properties
+*.jks
+*.keystore
