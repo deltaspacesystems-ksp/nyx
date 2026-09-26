@@ -1,5 +1,6 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <!-- Per-user installer: no administrator rights, installs to %LOCALAPPDATA%\Programs\Nyx. -->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <!-- Per-user installer: no administrator rights, installs to %LOCALAPPDATA%\Programs\Nyx.
+       Wizard: Welcome -> options (optional clean reinstall) -> Install -> progress with details -> Finish (shortcut + launch). -->
   <Package Name="Nyx" Manufacturer="Nyx" Version="$(var.Version)" UpgradeCode="6f0b6a52-3d0e-4d2e-9a53-2c1c7f4ab001" Scope="perUser" Compressed="yes">
     <MajorUpgrade DowngradeErrorMessage="A newer version of Nyx is already installed." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
@@ -20,10 +21,143 @@
       <Component Id="MainExe" Directory="INSTALLFOLDER" Bitness="always64">
         <File Id="NyxExe" Source="$(var.Src)\nyx.exe" KeyPath="yes" />
       </Component>
-      <Component Id="StartMenu" Directory="ProgramMenuFolder">
-        <Shortcut Id="StartShortcut" Name="Nyx" Target="[INSTALLFOLDER]nyx.exe" WorkingDirectory="INSTALLFOLDER" Icon="app.ico" />
+      <!-- Bookkeeping: remembers the install, removes the start menu shortcut (created at the end of the wizard) on uninstall,
+           and wipes the old program files first when "remove and reinstall" was ticked. Settings/data live elsewhere and stay. -->
+      <Component Id="Bookkeeping" Directory="INSTALLFOLDER">
         <RegistryValue Root="HKCU" Key="Software\Nyx" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+        <RemoveFile Id="RemoveStartShortcut" Directory="ProgramMenuFolder" Name="Nyx.lnk" On="uninstall" />
+        <util:RemoveFolderEx On="install" Property="CLEANDIR" />
       </Component>
     </Feature>
+
+    <Property Id="ADDSHORTCUT" Value="1" />
+    <Property Id="LAUNCHAPP" Value="1" />
+    <SetProperty Id="CLEANDIR" Value="[LocalAppDataFolder]Programs\Nyx\" Condition="CLEANINSTALL = 1 AND NOT CLEANDIR" Sequence="execute" Before="CostInitialize" />
+
+    <CustomAction Id="MakeShortcut" Directory="INSTALLFOLDER" Return="ignore" Execute="immediate"
+      ExeCommand="powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command &quot;$s=(New-Object -ComObject WScript.Shell).CreateShortcut('[ProgramMenuFolder]Nyx.lnk'); $s.TargetPath='[INSTALLFOLDER]nyx.exe'; $s.WorkingDirectory='[INSTALLFOLDER]'; $s.Save()&quot;" />
+    <CustomAction Id="LaunchNyx" Directory="INSTALLFOLDER" Return="asyncNoWait" ExeCommand="&quot;[INSTALLFOLDER]nyx.exe&quot;" />
+    <!-- Silent installs (no wizard) still get the shortcut. -->
+    <InstallExecuteSequence>
+      <Custom Action="MakeShortcut" After="InstallFinalize" Condition="UILevel &lt; 4 AND ADDSHORTCUT = 1 AND NOT REMOVE" />
+    </InstallExecuteSequence>
+
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.Art)\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.Art)\dialog.bmp" />
+    <Binary Id="NyxDialogBmp" SourceFile="$(var.Art)\dialog.bmp" />
+    <Binary Id="NyxBannerBmp" SourceFile="$(var.Art)\banner.bmp" />
+
+    <UI Id="NyxUI">
+      <TextStyle Id="NyxText" FaceName="Segoe UI" Size="9" />
+      <TextStyle Id="NyxTitle" FaceName="Segoe UI" Size="14" Bold="yes" />
+      <TextStyle Id="NyxBold" FaceName="Segoe UI" Size="9" Bold="yes" />
+      <Property Id="DefaultUIFont" Value="NyxText" />
+
+      <!-- What the details area says while each step runs. -->
+      <ProgressText Action="InstallFiles" Message="Copying files" Template="File: [1]    Folder: [9]    Size: [6] bytes" />
+      <ProgressText Action="RemoveFiles" Message="Removing old files" Template="File: [1]    Folder: [9]" />
+      <ProgressText Action="RemoveFolders" Message="Removing old folders" Template="Folder: [1]" />
+      <ProgressText Action="CreateFolders" Message="Creating folders" Template="Folder: [1]" />
+      <ProgressText Action="WriteRegistryValues" Message="Writing settings" Template="Key: [1]    Name: [2]" />
+      <ProgressText Action="RemoveRegistryValues" Message="Removing settings" Template="Key: [1]    Name: [2]" />
+      <ProgressText Action="WixRemoveFoldersEx" Message="Cleaning old program files" Template="[1]" />
+      <ProgressText Action="RegisterProduct" Message="Registering Nyx" Template="[1]" />
+      <ProgressText Action="PublishProduct" Message="Publishing Nyx" Template="[1]" />
+      <ProgressText Action="InstallValidate" Message="Checking the system" />
+      <ProgressText Action="ProcessComponents" Message="Updating component registration" />
+      <ProgressText Action="UnpublishFeatures" Message="Removing feature information" Template="[1]" />
+
+      <!-- 1. Welcome -->
+      <Dialog Id="WelcomeDlg" Width="370" Height="270" Title="Nyx Setup">
+        <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="NyxDialogBmp" />
+        <Control Id="Line" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Title" Type="Text" X="135" Y="20" Width="225" Height="60" Transparent="yes" NoPrefix="yes" Text="{\NyxTitle}Welcome to the Nyx installation wizard" />
+        <Control Id="Body" Type="Text" X="135" Y="90" Width="225" Height="100" Transparent="yes" NoPrefix="yes"
+          Text="This wizard installs Nyx, the private end-to-end encrypted chat, for your user account. No administrator rights are needed.&#13;&#10;&#13;&#10;Click Next to continue." />
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="Next">
+          <Publish Event="NewDialog" Value="OptionsDlg" />
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="Cancel">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <!-- 2. Options + Install -->
+      <Dialog Id="OptionsDlg" Width="370" Height="270" Title="Nyx Setup">
+        <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="NyxBannerBmp" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="Title" Type="Text" X="15" Y="8" Width="300" Height="30" Transparent="yes" NoPrefix="yes" Text="{\NyxBold}Ready to install Nyx" />
+        <Control Id="Where" Type="Text" X="25" Y="60" Width="325" Height="34" NoPrefix="yes" Text="Nyx will be installed to:&#13;&#10;[INSTALLFOLDER]" />
+        <Control Id="Clean" Type="CheckBox" X="25" Y="112" Width="325" Height="30" Property="CLEANINSTALL" CheckBoxValue="1"
+          Text="Remove the old program files and reinstall them (your settings, account and downloads are kept)" />
+        <Control Id="CleanHint" Type="Text" X="43" Y="146" Width="307" Height="30" NoPrefix="yes" Text="Leave this off for a normal install or update. Turn it on if Nyx misbehaves after an update." />
+        <Control Id="Line" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="Back">
+          <Publish Event="NewDialog" Value="WelcomeDlg" />
+        </Control>
+        <Control Id="Install" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="Install">
+          <Publish Event="EndDialog" Value="Return" />
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="Cancel">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <!-- 3. Progress with details -->
+      <Dialog Id="ProgressDlg" Width="370" Height="270" Title="Nyx Setup" Modeless="yes">
+        <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="NyxBannerBmp" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="Title" Type="Text" X="15" Y="8" Width="300" Height="30" Transparent="yes" NoPrefix="yes" Text="{\NyxBold}Installing Nyx" />
+        <Control Id="StatusLabel" Type="Text" X="25" Y="62" Width="320" Height="10" NoPrefix="yes" Text="Please wait while Nyx is set up." />
+        <Control Id="ActionText" Type="Text" X="25" Y="84" Width="320" Height="14" NoPrefix="yes" Text="Starting…">
+          <Subscribe Event="ActionText" Attribute="Text" />
+        </Control>
+        <Control Id="ProgressBar" Type="ProgressBar" X="25" Y="106" Width="320" Height="12" ProgressBlocks="yes" Text="Progress done">
+          <Subscribe Event="SetProgress" Attribute="Progress" />
+        </Control>
+        <Control Id="DetailsLabel" Type="Text" X="25" Y="132" Width="320" Height="10" NoPrefix="yes" Text="{\NyxBold}Details" />
+        <Control Id="ActionData" Type="Text" X="25" Y="146" Width="320" Height="70" NoPrefix="yes">
+          <Subscribe Event="ActionData" Attribute="Text" />
+        </Control>
+        <Control Id="Line" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Disabled="yes" Text="Back" />
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Disabled="yes" Text="Next" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="Cancel">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <!-- 4. Finish -->
+      <Dialog Id="ExitDialog" Width="370" Height="270" Title="Nyx Setup">
+        <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="NyxDialogBmp" />
+        <Control Id="Line" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Title" Type="Text" X="135" Y="20" Width="225" Height="50" Transparent="yes" NoPrefix="yes" Text="{\NyxTitle}Nyx is installed" />
+        <Control Id="Body" Type="Text" X="135" Y="80" Width="225" Height="40" Transparent="yes" NoPrefix="yes" Text="The installation finished. Click Finish to close the wizard." />
+        <Control Id="Shortcut" Type="CheckBox" X="135" Y="130" Width="225" Height="18" Property="ADDSHORTCUT" CheckBoxValue="1" Text="Add a start menu shortcut" />
+        <Control Id="Launch" Type="CheckBox" X="135" Y="152" Width="225" Height="18" Property="LAUNCHAPP" CheckBoxValue="1" Text="Launch Nyx" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Disabled="yes" Text="Back" />
+        <Control Id="Cancel" Type="PushButton" X="236" Y="243" Width="56" Height="17" Disabled="yes" Text="Cancel" />
+        <Control Id="Finish" Type="PushButton" X="304" Y="243" Width="56" Height="17" Default="yes" Cancel="yes" Text="Finish">
+          <Publish Event="DoAction" Value="MakeShortcut" Order="1" Condition="ADDSHORTCUT = 1" />
+          <Publish Event="DoAction" Value="LaunchNyx" Order="2" Condition="LAUNCHAPP = 1" />
+          <Publish Event="EndDialog" Value="Return" Order="3" />
+        </Control>
+      </Dialog>
+
+      <Dialog Id="CancelDlg" Width="260" Height="85" Title="Nyx Setup">
+        <Control Id="Text" Type="Text" X="48" Y="15" Width="194" Height="30" NoPrefix="yes" Text="Are you sure you want to cancel the Nyx installation?" />
+        <Control Id="Yes" Type="PushButton" X="72" Y="57" Width="56" Height="17" Default="yes" Text="Yes">
+          <Publish Event="EndDialog" Value="Exit" />
+        </Control>
+        <Control Id="No" Type="PushButton" X="132" Y="57" Width="56" Height="17" Cancel="yes" Text="No">
+          <Publish Event="EndDialog" Value="Return" />
+        </Control>
+      </Dialog>
+
+      <InstallUISequence>
+        <Show Dialog="WelcomeDlg" After="CostFinalize" Condition="NOT Installed" />
+        <Show Dialog="ExitDialog" OnExit="success" Condition="NOT (REMOVE = &quot;ALL&quot;)" />
+      </InstallUISequence>
+    </UI>
   </Package>
 </Wix>

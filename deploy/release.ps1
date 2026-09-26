@@ -29,7 +29,8 @@ if (Test-Path $msi) { Remove-Item $msi -Force }
 $wix = Get-Command wix -ErrorAction SilentlyContinue
 if ($wix) {
     $icon = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../client/windows/runner/resources/app_icon.ico'))
-    & wix build -pdbtype none -arch x64 -d "Version=$Version" -d "Src=$Build" -d "Icon=$icon" (Join-Path $PSScriptRoot "nyx.wxs") -o $msi
+    $art = Join-Path $PSScriptRoot 'installer'
+    & wix build -pdbtype none -arch x64 -ext WixToolset.Util.wixext -d "Version=$Version" -d "Src=$Build" -d "Icon=$icon" -d "Art=$art" (Join-Path $PSScriptRoot "nyx.wxs") -o $msi
     if ($LASTEXITCODE) { throw 'msi build failed' }
 } else { Write-Warning 'wix not found: skipping the .msi installer' }
 
