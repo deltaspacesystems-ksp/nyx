@@ -107,9 +107,10 @@ Write-Host "update applied: $ok"
 Start-Process -FilePath $Exe -WorkingDirectory $Dst
 try { Stop-Transcript | Out-Null } catch {}
 ''');
+  // Started through `cmd /c start /b`: a plain detached powershell.exe (no console) silently never runs the script.
   await Process.start(
-    'powershell.exe',
-    ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-ExecutionPolicy', 'Bypass', '-File', script.path, '-ProcId', '$pid', '-Src', src.path, '-Dst', dst, '-Exe', exe, '-Log', '${root.path}\\apply.log'],
+    'cmd.exe',
+    ['/c', 'start', '""', '/b', 'powershell.exe', '-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-ExecutionPolicy', 'Bypass', '-File', script.path, '-ProcId', '$pid', '-Src', src.path, '-Dst', dst, '-Exe', exe, '-Log', '${root.path}\\apply.log'],
     mode: ProcessStartMode.detached,
   );
   exit(0);
