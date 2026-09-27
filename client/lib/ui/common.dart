@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -46,12 +47,52 @@ class NyxBackground extends StatefulWidget {
   State<NyxBackground> createState() => _NyxBackgroundState();
 }
 
-class _NyxBackgroundState extends State<NyxBackground> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(seconds: 40))..repeat();
+class _NyxBackgroundState extends State<NyxBackground> with WidgetsBindingObserver {
+  // The aurora only drifts a little over 40 seconds, so redrawing it at the display's full refresh rate
+  // (60-144+ Hz, x3 for the blurred panels stacked on top of it) burns CPU/GPU for no visible benefit.
+  // A plain Timer at a fixed, modest rate decouples the animation from vsync and is paused whenever the
+  // window is minimised or not the foreground app, instead of an AnimationController's always-on Ticker.
+  static const _fps = 20;
+  Timer? _timer;
+  final _sw = Stopwatch();
+  double _v = .15;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) => _sync();
+
+  void _sync() {
+    final t = context.nyx;
+    final visible = WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed || WidgetsBinding.instance.lifecycleState == null;
+    final shouldRun = visible && t.animatedBackground && !t.reduceMotion;
+    if (shouldRun && _timer == null) {
+      _sw.start();
+      _timer = Timer.periodic(const Duration(milliseconds: 1000 ~/ _fps), (_) {
+        if (!mounted) return;
+        setState(() => _v = (_sw.elapsedMilliseconds / 40000) % 1);
+      });
+    } else if (!shouldRun && _timer != null) {
+      _timer!.cancel();
+      _timer = null;
+      _sw.stop();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
+  }
 
   @override
   void dispose() {
-    _c.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -59,6 +100,7 @@ class _NyxBackgroundState extends State<NyxBackground> with SingleTickerProvider
   Widget build(BuildContext context) {
     final t = context.nyx;
     final animate = t.animatedBackground && !t.reduceMotion;
+    _sync();
     Widget bg;
     switch (t.backgroundKind) {
       case BackgroundKind.solid:
@@ -87,7 +129,7 @@ class _NyxBackgroundState extends State<NyxBackground> with SingleTickerProvider
       case BackgroundKind.aurora:
         bg = RepaintBoundary(
           child: animate
-              ? AnimatedBuilder(animation: _c, builder: (_, _) => CustomPaint(painter: _AuroraPainter(t, _c.value), size: Size.infinite))
+              ? CustomPaint(painter: _AuroraPainter(t, _v), size: Size.infinite)
               : CustomPaint(painter: _AuroraPainter(t, .15), size: Size.infinite),
         );
     }
@@ -180,7 +222,8 @@ class Pop extends StatelessWidget {
 
 /// Pixel size of an encoded image without decoding it (cheap), remembered per blob.
 class ImageSizes {
-  static final _cache = <String, Size>{};
+  static const _max = 2000;
+  static final _cache = <String, Size>{}; // insertion order = age (LinkedHashMap)
 
   static Future<Size?> of(String id, Uint8List bytes) async {
     final hit = _cache[id];
@@ -191,6 +234,7 @@ class ImageSizes {
       final size = Size(d.width.toDouble(), d.height.toDouble());
       d.dispose();
       buf.dispose();
+      if (_cache.length >= _max) _cache.remove(_cache.keys.first);
       return _cache[id] = size;
     } catch (_) {
       return null;

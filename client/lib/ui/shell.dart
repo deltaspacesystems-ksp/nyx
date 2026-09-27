@@ -78,7 +78,7 @@ class _ShellState extends State<Shell> with WidgetsBindingObserver {
               const SizedBox(width: 8),
               SizedBox(width: 248, child: Glass(tint: context.depth(.10), child: const ChannelColumn())),
               const SizedBox(width: 8),
-              Expanded(child: Glass(opacity: .4, tint: context.depth(-.02), child: main)),
+              Expanded(child: Glass(opacity: .55, child: main)),
               if (wide && showMembers && ch != null && (ch.isText || ch.isVoice)) ...[
                 const SizedBox(width: 8),
                 SizedBox(width: 236, child: Glass(child: const MembersPanel())),
