@@ -76,9 +76,9 @@ class _ShellState extends State<Shell> with WidgetsBindingObserver {
             child: Row(children: [
               const GuildRail(),
               const SizedBox(width: 8),
-              SizedBox(width: 248, child: Glass(child: const ChannelColumn())),
+              SizedBox(width: 248, child: Glass(tint: context.depth(.10), child: const ChannelColumn())),
               const SizedBox(width: 8),
-              Expanded(child: Glass(opacity: .4, child: main)),
+              Expanded(child: Glass(opacity: .4, tint: context.depth(-.02), child: main)),
               if (wide && showMembers && ch != null && (ch.isText || ch.isVoice)) ...[
                 const SizedBox(width: 8),
                 SizedBox(width: 236, child: Glass(child: const MembersPanel())),
@@ -164,6 +164,7 @@ class GuildRail extends StatelessWidget {
       width: 72,
       child: Glass(
         radius: BorderRadius.circular(context.nyx.radius + 4),
+        tint: context.depth(.18),
         child: ListView(padding: const EdgeInsets.symmetric(vertical: 10), children: [
           _RailButton(
             selected: app.guildId == null,
@@ -396,10 +397,19 @@ class _GuildHeader extends StatelessWidget {
   }
 }
 
-class _ChannelTile extends StatelessWidget {
+class _ChannelTile extends StatefulWidget {
   final GuildModel guild;
   final ChannelModel channel;
   const _ChannelTile({required this.guild, required this.channel});
+
+  @override
+  State<_ChannelTile> createState() => _ChannelTileState();
+}
+
+class _ChannelTileState extends State<_ChannelTile> {
+  bool hover = false;
+  GuildModel get guild => widget.guild;
+  ChannelModel get channel => widget.channel;
 
   @override
   Widget build(BuildContext context) {
@@ -409,30 +419,64 @@ class _ChannelTile extends StatelessWidget {
     final mentions = app.mentionsIn(channel.id);
     final inVoice = app.voiceRooms[channel.id] ?? const [];
     final cs = context.cs;
+    final t = context.nyx;
     final icon = channel.isVoice ? Icons.volume_up_rounded : (channel.kind == ChannelKind.announcement ? Icons.campaign_rounded : (channel.restricted ? Icons.lock_rounded : Icons.tag_rounded));
     return Column(children: [
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 1),
-        child: GestureDetector(
-          onSecondaryTapDown: (d) => showChannelMenu(context, channel, d.globalPosition),
-          onLongPressStart: (d) => showChannelMenu(context, channel, d.globalPosition),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 160),
-            decoration: BoxDecoration(color: selected ? cs.primary.withValues(alpha: .18) : Colors.transparent, borderRadius: BorderRadius.circular(context.nyx.radius * .55)),
-            child: Material(
-              type: MaterialType.transparency,
-              child: ListTile(
-              dense: true,
-              visualDensity: const VisualDensity(vertical: -2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.nyx.radius * .55)),
-              leading: Icon(icon, size: 19, color: selected || unread ? cs.onSurface : context.muted),
-              title: Text(channel.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: unread || selected ? FontWeight.w700 : FontWeight.w500, color: selected || unread ? cs.onSurface : context.muted)),
-              trailing: mentions > 0 ? CountBadge(mentions) : (unread ? Container(width: 8, height: 8, decoration: BoxDecoration(color: cs.onSurface, shape: BoxShape.circle)) : null),
-              onTap: () {
-                if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) Navigator.pop(context);
-                app.openChannel(channel.id);
-              },
-            )),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => hover = true),
+          onExit: (_) => setState(() => hover = false),
+          child: GestureDetector(
+            onSecondaryTapDown: (d) => showChannelMenu(context, channel, d.globalPosition),
+            onLongPressStart: (d) => showChannelMenu(context, channel, d.globalPosition),
+            child: Stack(children: [
+              Positioned(
+                left: 0,
+                top: 6,
+                bottom: 6,
+                child: AnimatedContainer(
+                  duration: t.reduceMotion ? Duration.zero : const Duration(milliseconds: 160),
+                  width: selected ? 3 : 0,
+                  decoration: BoxDecoration(color: cs.onSurface, borderRadius: const BorderRadius.horizontal(right: Radius.circular(3))),
+                ),
+              ),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                margin: const EdgeInsets.only(left: 3),
+                decoration: BoxDecoration(
+                  color: selected ? cs.primary.withValues(alpha: .18) : (hover && t.hoverAnimations ? cs.onSurface.withValues(alpha: .05) : Colors.transparent),
+                  borderRadius: BorderRadius.circular(t.radius * .55),
+                ),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: ListTile(
+                  dense: true,
+                  visualDensity: const VisualDensity(vertical: -2),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(t.radius * .55)),
+                  leading: Icon(icon, size: 19, color: selected || unread ? cs.onSurface : context.muted),
+                  title: Text(channel.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: unread || selected ? FontWeight.w700 : FontWeight.w500, color: selected || unread ? cs.onSurface : context.muted)),
+                  trailing: mentions > 0
+                      ? CountBadge(mentions)
+                      : (unread
+                          ? Container(width: 8, height: 8, decoration: BoxDecoration(color: cs.onSurface, shape: BoxShape.circle))
+                          : (hover && guild.can(app.myId, Perm.manageChannels)
+                              ? Builder(builder: (c) => InkWell(
+                                  borderRadius: BorderRadius.circular(6),
+                                  onTap: () {
+                                    final box = c.findRenderObject() as RenderBox;
+                                    showChannelMenu(context, channel, box.localToGlobal(box.size.center(Offset.zero)));
+                                  },
+                                  child: Padding(padding: const EdgeInsets.all(4), child: Icon(Icons.settings_outlined, size: 16, color: context.muted)),
+                                ))
+                              : null)),
+                  onTap: () {
+                    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) Navigator.pop(context);
+                    app.openChannel(channel.id);
+                  },
+                )),
+              ),
+            ]),
           ),
         ),
       ),
@@ -451,38 +495,54 @@ class _ChannelTile extends StatelessWidget {
   }
 }
 
-class _DmTile extends StatelessWidget {
+class _DmTile extends StatefulWidget {
   final ChannelModel channel;
   const _DmTile({required this.channel});
 
   @override
+  State<_DmTile> createState() => _DmTileState();
+}
+
+class _DmTileState extends State<_DmTile> {
+  bool hover = false;
+  ChannelModel get channel => widget.channel;
+
+  @override
   Widget build(BuildContext context) {
     final app = context.app;
+    final t = context.nyx;
     final selected = app.channelId == channel.id;
     final others = channel.members.where((m) => m != app.myId).map((m) => app.users[m]).whereType<UserModel>().toList();
     final title = channel.kind == ChannelKind.groupDm ? (channel.name.isNotEmpty ? channel.name : others.map((u) => u.name).join(', ')) : (others.firstOrNull?.name ?? 'Unknown');
     final unread = app.hasUnread(channel.id) && !selected;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        decoration: BoxDecoration(color: selected ? context.cs.primary.withValues(alpha: .18) : Colors.transparent, borderRadius: BorderRadius.circular(context.nyx.radius * .6)),
-        child: Material(
-          type: MaterialType.transparency,
-          child: ListTile(
-          dense: true,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.nyx.radius * .6)),
-          leading: channel.kind == ChannelKind.groupDm
-              ? CircleAvatar(radius: 18, backgroundColor: context.cs.primary.withValues(alpha: .3), child: const Icon(Icons.group_rounded, size: 18))
-              : UserAvatar(others.firstOrNull, size: 36, presence: true),
-          title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: unread || selected ? FontWeight.w700 : FontWeight.w500)),
-          subtitle: channel.kind == ChannelKind.groupDm ? Text('${channel.members.length} members', style: const TextStyle(fontSize: 11)) : (others.firstOrNull?.profile.status.isNotEmpty == true ? Text(others.first.profile.status, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11)) : null),
-          trailing: unread ? Container(width: 9, height: 9, decoration: BoxDecoration(color: context.nyx.danger, shape: BoxShape.circle)) : null,
-          onTap: () {
-            if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) Navigator.pop(context);
-            app.openChannel(channel.id);
-          },
-        )),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => hover = true),
+        onExit: (_) => setState(() => hover = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          decoration: BoxDecoration(
+            color: selected ? context.cs.primary.withValues(alpha: .18) : (hover && t.hoverAnimations ? context.cs.onSurface.withValues(alpha: .05) : Colors.transparent),
+            borderRadius: BorderRadius.circular(t.radius * .6),
+          ),
+          child: Material(
+            type: MaterialType.transparency,
+            child: ListTile(
+            dense: true,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(t.radius * .6)),
+            leading: channel.kind == ChannelKind.groupDm
+                ? CircleAvatar(radius: 18, backgroundColor: context.cs.primary.withValues(alpha: .3), child: const Icon(Icons.group_rounded, size: 18))
+                : UserAvatar(others.firstOrNull, size: 36, presence: true),
+            title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: unread || selected ? FontWeight.w700 : FontWeight.w500)),
+            subtitle: channel.kind == ChannelKind.groupDm ? Text('${channel.members.length} members', style: const TextStyle(fontSize: 11)) : (others.firstOrNull?.profile.status.isNotEmpty == true ? Text(others.first.profile.status, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11)) : null),
+            trailing: unread ? Container(width: 9, height: 9, decoration: BoxDecoration(color: context.nyx.danger, shape: BoxShape.circle)) : null,
+            onTap: () {
+              if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) Navigator.pop(context);
+              app.openChannel(channel.id);
+            },
+          )),
+        ),
       ),
     );
   }

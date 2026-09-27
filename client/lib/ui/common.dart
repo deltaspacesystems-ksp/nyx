@@ -28,6 +28,11 @@ extension NyxContext on BuildContext {
   ColorScheme get cs => Theme.of(this).colorScheme;
   Color get muted => cs.onSurface.withValues(alpha: .6);
   Color get faint => cs.onSurface.withValues(alpha: .38);
+
+  /// A panel tinted a bit darker (>0) or lighter (<0) than the surface colour, for the layered depth
+  /// between the server rail (darkest), the channel list and the chat itself (lightest) - the same visual
+  /// hierarchy most chat apps use so the eye always knows which column it is in.
+  Color depth(double amount) => Color.lerp(nyx.surface, nyx.isLight ? Colors.white : Colors.black, amount)!;
 }
 
 // ----------------------------------------------------------------------------- backgrounds
